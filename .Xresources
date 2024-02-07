@@ -1,0 +1,131 @@
+#define nord0 #2E3440
+#define nord1 #3B4252
+#define nord2 #434C5E
+#define nord3 #4C566A
+#define nord4 #D8DEE9
+#define nord5 #E5E9F0
+#define nord6 #ECEFF4
+#define nord7 #8FBCBB
+#define nord8 #88C0D0
+#define nord9 #81A1C1
+#define nord10 #5E81AC
+#define nord11 #BF616A
+#define nord12 #D08770
+#define nord13 #EBCB8B
+#define nord14 #A3BE8C
+#define nord15 #B48EAD
+
+XTerm.vt100.geometry: 80x25
+XTerm*renderFont: true
+XTerm*faceName: Noto Mono
+XTerm*faceSize: 11
+XTerm*cursorBlink: true
+XTerm*cursorOffTime: 500
+XTerm*cursorOnTime: 500
+XTerm*VT100.Translations: #override \
+    Ctrl Shift <Key>V:    insert-selection(CLIPBOARD) \n\
+    Ctrl Shift <Key>C:    copy-selection(CLIPBOARD) \n\
+    Ctrl Alt <Key>S: secure()
+XTerm*termName: xterm-256color
+XTerm*foreground: nord4
+XTerm*background: nord0
+XTerm*cursorColor: nord4
+XTerm*fading: 35
+XTerm*fadeColor: nord3
+XTerm*color0: nord1
+XTerm*color1: nord11
+XTerm*color2: nord14
+XTerm*color3: nord13
+XTerm*color4: nord9
+XTerm*color5: nord15
+XTerm*color6: nord8
+XTerm*color7: nord5
+XTerm*color8: nord3
+XTerm*color9: nord11
+XTerm*color10: nord14
+XTerm*color11: nord13
+XTerm*color12: nord9
+XTerm*color13: nord15
+XTerm*color14: nord7
+XTerm*color15: nord6
+XTerm*eightBitInput:   false
+XTerm*eightBitOutput:  true
+XTerm*alternateScroll: true
+XTerm*allowWindowOps: true
+!XTerm*allowSendEvents: true
+
+xterm.vt100.geometry: 80x25
+xterm*renderFont: true
+xterm*faceName: Noto Mono
+xterm*faceSize: 11
+xterm*cursorBlink: true
+xterm*cursorOffTime: 500
+xterm*cursorOnTime: 500
+xterm*VT100.Translations: #override \
+    Ctrl Shift <Key>V:    insert-selection(CLIPBOARD) \n\
+    Ctrl Shift <Key>C:    copy-selection(CLIPBOARD) \n\
+    Ctrl Alt <Key>S: secure()
+xterm*foreground: nord4
+xterm*background: nord0
+xterm*cursorColor: nord4
+xterm*fading: 35
+xterm*fadeColor: nord3
+xterm*color0: nord1
+xterm*color1: nord11
+xterm*color2: nord14
+xterm*color3: nord13
+xterm*color4: nord9
+xterm*color5: nord15
+xterm*color6: nord8
+xterm*color7: nord5
+xterm*color8: nord3
+xterm*color9: nord11
+xterm*color10: nord14
+xterm*color11: nord13
+xterm*color12: nord9
+xterm*color13: nord15
+xterm*color14: nord7
+xterm*color15: nord6
+xterm*eightBitInput:   false
+xterm*eightBitOutput:  true
+xterm*alternateScroll: true
+xterm*allowWindowOps: true
+!xterm*allowSendEvents: true
+
+! GNOME Color Scheme
+! special
+gnome*foreground:   #ffffff
+gnome*background:   #000000
+gnome*cursorColor:  #ffffff
+
+! black
+gnome*color0:       #000000
+gnome*color8:       #555753
+
+! red
+gnome*color1:       #cc0000
+gnome*color9:       #ef2929
+
+! green
+gnome*color2:       #4e9a06
+gnome*color10:      #8ae234
+
+! yellow
+gnome*color3:       #c4a000
+gnome*color11:      #fce94f
+
+! blue
+gnome*color4:       #3465a4
+gnome*color12:      #729fcf
+
+! magenta
+gnome*color5:       #75507b
+gnome*color13:      #ad7fa8
+
+! cyan
+gnome*color6:       #06989a
+gnome*color14:      #34e2e2
+
+! white
+gnome*color7:       #d3d7cf
+gnome*color15:      #eeeeec
