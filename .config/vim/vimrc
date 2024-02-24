@@ -12,3 +12,16 @@ set hlsearch
 let g:netrw_banner = 0
 let g:netrw_liststyle = 3
 set nostartofline
+set directory=~/.cache/vim,~/,/tmp
+set backupdir=~/.cache/vim,~/,/tmp
+set viminfo+=n~/.cache/vim/viminfo
+set runtimepath^=~/.config/vim
+set runtimepath+=~/.local/share/vim
+set runtimepath+=~/.config/vim/after
+set packpath^=~/.local/share/vim,~/.config/vim
+set packpath+=~/.config/vim/after,~/.local/share/vim/after
+"set runtimepath=~/.config/vim,~/.config/vim/after,/var/lib/vim/addons,/etc/vim,/usr/share/vim/vimfiles,/usr/share/vim/vim91,/usr/share/vim/vimfiles/after,/etc/vim/after,/var/lib/vim/addons/after"
+let $MYVIMRC="~/.config/vim/vimrc"
+colorscheme nord
+"set termguicolors"
+"autocmd vimenter * ++nested colorscheme gruvbox"
