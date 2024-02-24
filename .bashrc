@@ -129,3 +129,5 @@ alias tmuxt2='tmux -L syed-f2 -f ~/.config/tmux/tmux.2.conf'
 case $- in *i*)
     [ "$TERM_PROGRAM" != "vscode" ] && [ "$TERM" == "xterm-256color" ] && [ -z "$TMUX" ] && exec tmux
 esac
+
+export VIMINIT='let $MYVIMRC="~/.config/vim/vimrc" | source $MYVIMRC'
