@@ -1,0 +1,64 @@
+#
+# System-wide NetHack configuration file for console-only NetHack.
+#
+OPTIONS=name:player
+OPTIONS=windowtype:tty,toptenwin,hilite_pet,hilite_pile,number_pad
+OPTIONS=fixinv,safe_pet,sortpack,tombstone,color,DECGraphics,clicklook
+OPTIONS=verbose,news,fruit:potato,boulder:0
+OPTIONS=dogname:Slinky
+OPTIONS=catname:Rex
+OPTIONS=autopickup
+OPTIONS=pickup_types:$?/
+OPTIONS=pickup_burden:unencumbered
+autopickup_exception=":0¥)"
+AUTOPICKUP_EXCEPTION="> named empty"
+OPTIONS=nomail
+
+# Enable this if you want to see your inventory sorted in alphabetical
+# order by item instead of by index letter:
+# OPTIONS=sortloot:full
+# or if you just want containers sorted:
+# OPTIONS=sortloot:loot
+
+#
+# Some sane defaults for menucolor
+#
+
+OPTIONS=menucolors
+MENUCOLOR=" blessed "=green
+MENUCOLOR=" holy "=green
+MENUCOLOR=" uncursed "=yellow
+MENUCOLOR=" cursed "=red
+MENUCOLOR=" unholy "=red
+MENUCOLOR=" cursed .* (being worn)"=orange&underline
+
+OPTIONS=statushilites:6
+
+OPTIONS=hilite_status:hunger/3/yellow
+OPTIONS=hilite_status:hunger/4/red
+OPTIONS=hilite_status:hunger/0/brightgreen
+OPTIONS=hilite_status:carrying-capacity/burdened/yellow/stressed/orange/strained/orange
+OPTIONS=hilite_status:carrying-capacity/overtaxed/red/overloaded/red
+
+OPTIONS=hilite_status:experience_level/up/white
+OPTIONS=hilite_status:experience_level/down/brown
+
+OPTIONS=hilite_status:condition/stone/red
+OPTIONS=hilite_status:condition/strngl/red
+OPTIONS=hilite_status:condition/termill/orange
+OPTIONS=hilite_status:condition/foodpois/orange
+OPTIONS=hilite_status:condition/slime/orange
+OPTIONS=hilite_status:condition/hallu/yellow
+OPTIONS=hilite_status:condition/conf/magenta
+OPTIONS=hilite_status:condition/stun/magenta
+OPTIONS=hilite_status:condition/movement/lightblue
+
+OPTIONS=hilite_status:hitpoints/<99%/green
+OPTIONS=hilite_status:hitpoints/<65%/yellow
+OPTIONS=hilite_status:hitpoints/<35%/orange
+OPTIONS=hilite_status:hitpoints/<20%/red
+
+OPTIONS=hilite_status:power/<99%/blue
+OPTIONS=hilite_status:power/<75%/lightblue
+OPTIONS=hilite_status:power/<35%/cyan
+
