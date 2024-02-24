@@ -124,7 +124,7 @@ alias lynx='lynx -vikeys'
 alias xt132x43='wmctrl -r :ACTIVE: -e 0,50,50,1330,860'
 alias xt80x43='wmctrl -r :ACTIVE: -e 0,50,50,804,860'
 alias gitls-m='git diff --name-only origin/$(git branch --show-current)'
-alias tmuxt2='tmux -L syed-f2 -f ~/.tmux.2.conf'
+alias tmuxt2='tmux -L syed-f2 -f ~/.config/tmux/tmux.2.conf'
 
 case $- in *i*)
     [ "$TERM_PROGRAM" != "vscode" ] && [ "$TERM" == "xterm-256color" ] && [ -z "$TMUX" ] && exec tmux
