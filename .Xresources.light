@@ -29,33 +29,34 @@ XTerm*VT100.Translations: #override \
 XTerm*termName: xterm-256color
 
 ! hard contrast: *background: #f9f5d7
-*background: #fbf1c7
+XTerm*background: #fbf1c7
 ! soft contrast: *background: #f2e5bc
-*foreground: #3c3836
+XTerm*foreground: #3c3836
 ! Black + DarkGrey
-*color0:  #fdf4c1
-*color8:  #928374
+XTerm*color0:  #fdf4c1
+XTerm*color8:  #928374
 ! DarkRed + Red
-*color1:  #cc241d
-*color9:  #9d0006
+XTerm*color1:  #cc241d
+XTerm*color9:  #9d0006
 ! DarkGreen + Green
-*color2:  #98971a
-*color10: #79740e
+XTerm*color2:  #98971a
+XTerm*color10: #79740e
 ! DarkYellow + Yellow
-*color3:  #d79921
-*color11: #b57614
+XTerm*color3:  #d79921
+XTerm*color11: #b57614
 ! DarkBlue + Blue
-*color4:  #458588
-*color12: #076678
+XTerm*color4:  #458588
+XTerm*color12: #076678
 ! DarkMagenta + Magenta
-*color5:  #b16286
-*color13: #8f3f71
+XTerm*color5:  #b16286
+XTerm*color13: #8f3f71
 ! DarkCyan + Cyan
-*color6:  #689d6a
-*color14: #427b58
+XTerm*color6:  #689d6a
+XTerm*color14: #427b58
 ! LightGrey + White
-*color7:  #7c6f64
-*color15: #3c3836
+XTerm*color7:  #7c6f64
+XTerm*color15: #3c3836
+XTerm*cursorColor: #3c3836
 
 !XTerm*foreground: nord4
 !XTerm*background: nord0
@@ -118,6 +119,36 @@ xterm*VT100.Translations: #override \
 !xterm*color13: nord15
 !xterm*color14: nord7
 !xterm*color15: nord6
+
+! hard contrast: *background: #f9f5d7
+xterm*background: #fbf1c7
+! soft contrast: *background: #f2e5bc
+xterm*foreground: #3c3836
+! Black + DarkGrey
+xterm*color0:  #fdf4c1
+xterm*color8:  #928374
+! DarkRed + Red
+xterm*color1:  #cc241d
+xterm*color9:  #9d0006
+! DarkGreen + Green
+xterm*color2:  #98971a
+xterm*color10: #79740e
+! DarkYellow + Yellow
+xterm*color3:  #d79921
+xterm*color11: #b57614
+! DarkBlue + Blue
+xterm*color4:  #458588
+xterm*color12: #076678
+! DarkMagenta + Magenta
+xterm*color5:  #b16286
+xterm*color13: #8f3f71
+! DarkCyan + Cyan
+xterm*color6:  #689d6a
+xterm*color14: #427b58
+! LightGrey + White
+xterm*color7:  #7c6f64
+xterm*color15: #3c3836
+xterm*cursorColor: #3c3836
 
 xterm*eightBitInput:   false
 xterm*eightBitOutput:  true
