@@ -1,0 +1,153 @@
+#define S_base03        #002b36
+#define S_base02        #073642
+#define S_base01        #586e75
+#define S_base00        #657b83
+#define S_base0         #839496
+#define S_base1         #93a1a1
+#define S_base2         #eee8d5
+#define S_base3         #fdf6e3
+#define S_yellow        #b58900
+#define S_orange        #cb4b16
+#define S_red           #dc322f
+#define S_magenta       #d33682
+#define S_violet        #6c71c4
+#define S_blue          #268bd2
+#define S_cyan          #2aa198
+#define S_green         #859900
+
+XTerm.vt100.geometry: 80x25
+XTerm*renderFont: true
+XTerm*faceName: Noto Mono
+XTerm*faceSize: 11
+XTerm*cursorBlink: true
+XTerm*cursorOffTime: 500
+XTerm*cursorOnTime: 500
+XTerm*VT100.Translations: #override \
+    Ctrl Shift <Key>V:    insert-selection(CLIPBOARD) \n\
+    Ctrl Shift <Key>C:    copy-selection(CLIPBOARD) \n\
+    Ctrl Alt <Key>S: secure()
+XTerm*termName: xterm-256color
+
+XTerm*background:            S_base3
+XTerm*foreground:            S_base00
+XTerm*fadeColor:             S_base3
+XTerm*cursorColor:           S_base01
+XTerm*pointerColorBackground:S_base1
+XTerm*pointerColorForeground:S_base01
+!! black dark/light
+XTerm*color0:                S_base02
+XTerm*color8:                S_base03
+!! red dark/light
+XTerm*color1:                S_red
+XTerm*color9:                S_orange
+!! green dark/light
+XTerm*color2:                S_green
+XTerm*color10:               S_base01
+!! yellow dark/light
+XTerm*color3:                S_yellow
+XTerm*color11:               S_base00
+!! blue dark/light
+XTerm*color4:                S_blue
+XTerm*color12:               S_base0
+!! magenta dark/light
+XTerm*color5:                S_magenta
+XTerm*color13:               S_violet
+!! cyan dark/light
+XTerm*color6:                S_cyan
+XTerm*color14:               S_base1
+!! white dark/light
+XTerm*color7:                S_base2
+XTerm*color15:               S_base3
+
+XTerm*eightBitInput:   false
+XTerm*eightBitOutput:  true
+XTerm*alternateScroll: true
+XTerm*allowWindowOps: true
+!XTerm*allowSendEvents: true
+
+xterm.vt100.geometry: 80x25
+xterm*renderFont: true
+xterm*faceName: Noto Mono
+xterm*faceSize: 11
+xterm*cursorBlink: true
+xterm*cursorOffTime: 500
+xterm*cursorOnTime: 500
+xterm*VT100.Translations: #override \
+    Ctrl Shift <Key>V:    insert-selection(CLIPBOARD) \n\
+    Ctrl Shift <Key>C:    copy-selection(CLIPBOARD) \n\
+    Ctrl Alt <Key>S: secure()
+
+xterm*background:            S_base3
+xterm*foreground:            S_base00
+xterm*fadeColor:             S_base3
+xterm*cursorColor:           S_base01
+xterm*pointerColorBackground:S_base1
+xterm*pointerColorForeground:S_base01
+!! black dark/light
+xterm*color0:                S_base02
+xterm*color8:                S_base03
+!! red dark/light
+xterm*color1:                S_red
+xterm*color9:                S_orange
+!! green dark/light
+xterm*color2:                S_green
+xterm*color10:               S_base01
+!! yellow dark/light
+xterm*color3:                S_yellow
+xterm*color11:               S_base00
+!! blue dark/light
+xterm*color4:                S_blue
+xterm*color12:               S_base0
+!! magenta dark/light
+xterm*color5:                S_magenta
+xterm*color13:               S_violet
+!! cyan dark/light
+xterm*color6:                S_cyan
+xterm*color14:               S_base1
+!! white dark/light
+xterm*color7:                S_base2
+xterm*color15:               S_base3
+
+xterm*eightBitInput:   false
+xterm*eightBitOutput:  true
+xterm*alternateScroll: true
+xterm*allowWindowOps: true
+!xterm*allowSendEvents: true
+
+! GNOME Color Scheme
+! special
+gnome*foreground:   #ffffff
+gnome*background:   #000000
+gnome*cursorColor:  #ffffff
+
+! black
+gnome*color0:       #000000
+gnome*color8:       #555753
+
+! red
+gnome*color1:       #cc0000
+gnome*color9:       #ef2929
+
+! green
+gnome*color2:       #4e9a06
+gnome*color10:      #8ae234
+
+! yellow
+gnome*color3:       #c4a000
+gnome*color11:      #fce94f
+
+! blue
+gnome*color4:       #3465a4
+gnome*color12:      #729fcf
+
+! magenta
+gnome*color5:       #75507b
+gnome*color13:      #ad7fa8
+
+! cyan
+gnome*color6:       #06989a
+gnome*color14:      #34e2e2
+
+! white
+gnome*color7:       #d3d7cf
+gnome*color15:      #eeeeec
