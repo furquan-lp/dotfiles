@@ -130,7 +130,7 @@ case $- in *i*)
     [ "$TERM_PROGRAM" != "vscode" ] && [ "$TERM" == "xterm-256color" ] && [ -z "$TMUX" ] && exec tmux
 esac
 
-export VIMINIT='let $MYVIMRC="~/.config/vim/vimrc" | source $MYVIMRC'
+#export VIMINIT='let $MYVIMRC="~/.config/vim/vimrc" | source $MYVIMRC'
 export XAUTHORITY="$XDG_RUNTIME_DIR"/Xauthority
 alias yarn='yarn --use-yarnrc ~/.config/yarn/config'
 export GRADLE_USER_HOME=~/.local/share/gradle
