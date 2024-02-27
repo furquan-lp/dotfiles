@@ -131,3 +131,6 @@ case $- in *i*)
 esac
 
 export VIMINIT='let $MYVIMRC="~/.config/vim/vimrc" | source $MYVIMRC'
+export XAUTHORITY="$XDG_RUNTIME_DIR"/Xauthority
+alias yarn='yarn --use-yarnrc ~/.config/yarn/config'
+export GRADLE_USER_HOME=~/.local/share/gradle
