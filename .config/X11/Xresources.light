@@ -33,7 +33,7 @@ XTerm*background: #fbf1c7
 ! soft contrast: *background: #f2e5bc
 XTerm*foreground: #3c3836
 ! Black + DarkGrey
-XTerm*color0:  #fdf4c1
+XTerm*color0:  #fbf1c7
 XTerm*color8:  #928374
 ! DarkRed + Red
 XTerm*color1:  #cc241d
