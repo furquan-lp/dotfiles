@@ -53,3 +53,5 @@ endfunction
 nnoremap <F2> :call ColorNord()<CR>
 
 source $HOME/.config/nvim/lua/init.lua
+set mouse=a
+vmap <LeftRelease> "*ygv
