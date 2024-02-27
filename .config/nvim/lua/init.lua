@@ -65,3 +65,5 @@ vim.diagnostic.config({
 
 vim.o.updatetime = 250
 vim.cmd [[autocmd CursorHold,CursorHoldI * lua vim.diagnostic.open_float(nil, {focus=false})]]
+
+vim.cmd [[autocmd BufWritePre <buffer> lua vim.lsp.buf.format()]]
