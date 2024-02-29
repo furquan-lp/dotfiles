@@ -34,6 +34,8 @@ set background=dark
 "set background=light
 
 set laststatus=1
+set titlestring=
+set title
 
 "Functions
 
@@ -53,5 +55,6 @@ endfunction
 nnoremap <F2> :call ColorNord()<CR>
 
 source $HOME/.config/nvim/lua/init.lua
-set mouse=a
-vmap <LeftRelease> "*ygv
+"set mouse=a
+"vmap <LeftRelease> "*ygv
+autocmd BufRead * autocmd FileType <buffer> ++once if &ft !~# 'commit\|rebase' && line("'\"") > 1 && line("'\"") <= line("$") | exe 'normal! g`"' | endif
