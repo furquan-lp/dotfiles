@@ -131,7 +131,7 @@ function setDefaultTheme()
     -- TODO
     local hour = tonumber(os.date("%H"))
     if hour > 17 or hour <= 5 then
-        vim.cmd.colorscheme('nord')
+        vim.cmd.colorscheme('kanagawa-wave')
     else
         vim.cmd.colorscheme('gruvbox')
         vim.opt.termguicolors = true
