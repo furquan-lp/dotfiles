@@ -1,37 +1,22 @@
 XTerm.vt100.geometry: 80x25
-XTerm*renderFont: true
-XTerm*faceName: Noto Mono
-XTerm*faceSize: 11
-XTerm*cursorBlink: true
-XTerm*cursorOffTime: 500
-XTerm*cursorOnTime: 500
-XTerm*VT100.Translations: #override \
+*renderFont: true
+*faceName: Noto Mono
+*faceSize: 11
+*cursorBlink: true
+*cursorOffTime: 500
+*cursorOnTime: 500
+*VT100.Translations: #override \
     Ctrl Shift <Key>V:    insert-selection(CLIPBOARD) \n\
     Ctrl Shift <Key>C:    copy-selection(CLIPBOARD) \n\
     Ctrl Alt <Key>S: secure()
-XTerm*termName: xterm-256color
-XTerm*eightBitInput:   false
-XTerm*eightBitOutput:  true
-XTerm*alternateScroll: true
-XTerm*allowWindowOps: true
+*termName: xterm-256color
+*eightBitInput:   false
+*eightBitOutput:  true
+*alternateScroll: true
+*allowWindowOps: true
 !XTerm*allowSendEvents: true
 
 xterm.vt100.geometry: 80x25
-xterm*renderFont: true
-xterm*faceName: Noto Mono
-xterm*faceSize: 11
-xterm*cursorBlink: true
-xterm*cursorOffTime: 500
-xterm*cursorOnTime: 500
-xterm*VT100.Translations: #override \
-    Ctrl Shift <Key>V:    insert-selection(CLIPBOARD) \n\
-    Ctrl Shift <Key>C:    copy-selection(CLIPBOARD) \n\
-    Ctrl Alt <Key>S: secure()
-xterm*eightBitInput:   false
-xterm*eightBitOutput:  true
-xterm*alternateScroll: true
-xterm*allowWindowOps: true
-!xterm*allowSendEvents: true
 
 ! GNOME Color Scheme
 ! special
