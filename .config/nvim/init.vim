@@ -52,9 +52,9 @@ function! ColorNord()
 endfunction
 
 "Default colorscheme function
-nnoremap <F2> :call ColorNord()<CR>
+"nnoremap <F2> :call ColorNord()<CR>
 
+autocmd BufRead * autocmd FileType <buffer> ++once if &ft !~# 'commit\|rebase' && line("'\"") > 1 && line("'\"") <= line("$") | exe 'normal! g`"' | endif
 source $HOME/.config/nvim/lua/init.lua
 "set mouse=a
 "vmap <LeftRelease> "*ygv
-autocmd BufRead * autocmd FileType <buffer> ++once if &ft !~# 'commit\|rebase' && line("'\"") > 1 && line("'\"") <= line("$") | exe 'normal! g`"' | endif
