@@ -1,7 +1,7 @@
 #
 # System-wide NetHack configuration file for console-only NetHack.
 #
-OPTIONS=name:player
+OPTIONS=name:player,msg_window:combination,msghistory:60,hitpointbar
 OPTIONS=windowtype:tty,toptenwin,hilite_pet,hilite_pile,number_pad
 OPTIONS=fixinv,safe_pet,sortpack,tombstone,color,DECGraphics,clicklook
 OPTIONS=verbose,news,fruit:potato,boulder:0
