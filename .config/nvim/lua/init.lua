@@ -124,6 +124,24 @@ vim.api.nvim_create_autocmd('LspAttach', {
   end,
 })
 
+-- custom functions --
+
+function setDefaultTheme()
+    -- color scheme code
+    -- TODO
+    local hour = tonumber(os.date("%H"))
+    if hour > 17 or hour <= 5 then
+        vim.cmd.colorscheme('nord')
+    else
+        vim.cmd.colorscheme('gruvbox')
+        vim.opt.termguicolors = true
+        vim.g.gruvbox_invert_selection = 0
+        vim.opt.background = 'light'
+    end
+end
+
+-- config begins here --
+
 vim.diagnostic.config({
     virtual_text = false
 })
@@ -142,3 +160,7 @@ vim.api.nvim_create_autocmd("CursorMoved", {
     end
   end,
 })
+
+vim.api.nvim_command('filetype plugin on')
+
+setDefaultTheme()
