@@ -1,0 +1,26 @@
+#!/bin/bash
+
+hours=$(date +%H)
+case "$hours" in ''|*[!0-9]*)
+    echo "Error: date +%H \"$hours\" is not a number" && exit ;;
+esac
+
+if [ $hours -gt 17 ] || [ $hours -lt 6 ]; then
+    tmux source ~/.config/tmux/tmux.conf
+    xrdb ~/.Xresources
+    xrdb -merge ~/.config/X11/Xresources.kanagawa
+    gsettings set org.cinnamon.desktop.interface text-scaling-factor 1.2
+    gsettings set org.cinnamon.desktop.interface text-scaling-factor 1.1
+    sleep 1s
+    tmux detach -s $(tmux display-message -p '#S')
+    uxterm -e 'bash -c "touch /tmp/.notmux; exec bash"' &
+else
+    tmux source ~/.config/tmux/tmux.light.conf
+    xrdb ~/.Xresources
+    xrdb -merge ~/.config/X11/Xresources.light
+    gsettings set org.cinnamon.desktop.interface text-scaling-factor 1.2
+    gsettings set org.cinnamon.desktop.interface text-scaling-factor 1.1
+    sleep 1s
+    tmux detach -s $(tmux display-message -p '#S')
+    uxterm -e 'bash -c "touch /tmp/.notmux; exec bash"' &
+fi
