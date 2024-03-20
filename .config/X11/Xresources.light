@@ -1,59 +1,29 @@
 ! hard contrast: *background: #f9f5d7
-XTerm*background: #fbf1c7
+*background: #fbf1c7
 ! soft contrast: *background: #f2e5bc
-XTerm*foreground: #3c3836
+*foreground: #3c3836
 ! Black + DarkGrey
-XTerm*color0:  #fbf1c7
-XTerm*color8:  #928374
+*color0:  #fbf1c7
+*color8:  #928374
 ! DarkRed + Red
-XTerm*color1:  #cc241d
-XTerm*color9:  #9d0006
+*color1:  #cc241d
+*color9:  #9d0006
 ! DarkGreen + Green
-XTerm*color2:  #98971a
-XTerm*color10: #79740e
+*color2:  #98971a
+*color10: #79740e
 ! DarkYellow + Yellow
-XTerm*color3:  #d79921
-XTerm*color11: #b57614
+*color3:  #d79921
+*color11: #b57614
 ! DarkBlue + Blue
-XTerm*color4:  #458588
-XTerm*color12: #076678
+*color4:  #458588
+*color12: #076678
 ! DarkMagenta + Magenta
-XTerm*color5:  #b16286
-XTerm*color13: #8f3f71
+*color5:  #b16286
+*color13: #8f3f71
 ! DarkCyan + Cyan
-XTerm*color6:  #689d6a
-XTerm*color14: #427b58
+*color6:  #689d6a
+*color14: #427b58
 ! LightGrey + White
-XTerm*color7:  #7c6f64
-XTerm*color15: #3c3836
-XTerm*cursorColor: #3c3836
-
-! hard contrast: *background: #f9f5d7
-xterm*background: #fbf1c7
-! soft contrast: *background: #f2e5bc
-xterm*foreground: #3c3836
-! Black + DarkGrey
-xterm*color0:  #fdf4c1
-xterm*color8:  #928374
-! DarkRed + Red
-xterm*color1:  #cc241d
-xterm*color9:  #9d0006
-! DarkGreen + Green
-xterm*color2:  #98971a
-xterm*color10: #79740e
-! DarkYellow + Yellow
-xterm*color3:  #d79921
-xterm*color11: #b57614
-! DarkBlue + Blue
-xterm*color4:  #458588
-xterm*color12: #076678
-! DarkMagenta + Magenta
-xterm*color5:  #b16286
-xterm*color13: #8f3f71
-! DarkCyan + Cyan
-xterm*color6:  #689d6a
-xterm*color14: #427b58
-! LightGrey + White
-xterm*color7:  #7c6f64
-xterm*color15: #3c3836
-xterm*cursorColor: #3c3836
+*color7:  #7c6f64
+*color15: #3c3836
+*cursorColor: #3c3836
