@@ -119,6 +119,11 @@ fi
 export FLYCTL_INSTALL="/home/syed-f/.fly"
 export PATH="$FLYCTL_INSTALL/bin:$PATH"
 
+if [ -f /tmp/.notmux ]; then
+    export NOTMUX=true
+    rm /tmp/.notmux
+fi
+
 alias lynx='lynx -vikeys'
 # alias tmux="tmux -2"
 alias xt132x43="wmctrl -r :ACTIVE: -e 0,$(xdotool getwindowgeometry $(xdotool getactivewindow) | grep "Position" | awk '{print $2}'),1330,860"
@@ -133,7 +138,7 @@ alias yarn='yarn --use-yarnrc ~/.config/yarn/config'
 export GRADLE_USER_HOME=~/.local/share/gradle
 
 case $- in *i*)
-    [ "$TERM_PROGRAM" != "vscode" ] && [ "$TERM" == "xterm-256color" ] && [ -z "$TMUX" ] && exec tmux
+    [ "$NOTMUX" != "true" ] && [ "$TERM_PROGRAM" != "vscode" ] && [ "$TERM" == "xterm-256color" ] && [ -z "$TMUX" ] && exec tmux
 esac
 
 set -o vi
