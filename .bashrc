@@ -121,18 +121,19 @@ export PATH="$FLYCTL_INSTALL/bin:$PATH"
 
 alias lynx='lynx -vikeys'
 # alias tmux="tmux -2"
-alias xt132x43='wmctrl -r :ACTIVE: -e 0,50,50,1330,860'
-alias xt80x43='wmctrl -r :ACTIVE: -e 0,50,50,804,860'
+alias xt132x43="wmctrl -r :ACTIVE: -e 0,$(xdotool getwindowgeometry $(xdotool getactivewindow) | grep "Position" | awk '{print $2}'),1330,860"
+alias xt80x43="wmctrl -r :ACTIVE: -e 0,$(xdotool getwindowgeometry $(xdotool getactivewindow) | grep "Position" | awk '{print $2}'),804,860"
+alias xt80x24="wmctrl -r :ACTIVE: -e 0,$(xdotool getwindowgeometry $(xdotool getactivewindow) | grep "Position" | awk '{print $2}'),804,504"
 alias gitls-m='git diff --name-only origin/$(git branch --show-current)'
 alias tmuxt2='tmux -L syed-f2 -f ~/.config/tmux/tmux.2.conf'
-
-case $- in *i*)
-    [ "$TERM_PROGRAM" != "vscode" ] && [ "$TERM" == "xterm-256color" ] && [ -z "$TMUX" ] && exec tmux
-esac
 
 #export VIMINIT='let $MYVIMRC="~/.config/vim/vimrc" | source $MYVIMRC'
 export XAUTHORITY="$XDG_RUNTIME_DIR"/Xauthority
 alias yarn='yarn --use-yarnrc ~/.config/yarn/config'
 export GRADLE_USER_HOME=~/.local/share/gradle
+
+case $- in *i*)
+    [ "$TERM_PROGRAM" != "vscode" ] && [ "$TERM" == "xterm-256color" ] && [ -z "$TMUX" ] && exec tmux
+esac
 
 set -o vi
