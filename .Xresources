@@ -1,4 +1,4 @@
-XTerm.vt100.geometry: 80x25
+*vt100.geometry: 80x25
 *renderFont: true
 *faceName: Noto Mono
 *faceSize: 11
@@ -15,8 +15,6 @@ XTerm.vt100.geometry: 80x25
 *alternateScroll: true
 *allowWindowOps: true
 !XTerm*allowSendEvents: true
-
-xterm.vt100.geometry: 80x25
 
 ! GNOME Color Scheme
 ! special
