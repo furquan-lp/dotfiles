@@ -47,12 +47,12 @@ esac
 
 if [ -n "$force_color_prompt" ]; then
     if [ -x /usr/bin/tput ] && tput setaf 1 >&/dev/null; then
-	# We have color support; assume it's compliant with Ecma-48
-	# (ISO/IEC-6429). (Lack of such support is extremely rare, and such
-	# a case would tend to support setf rather than setaf.)
-	color_prompt=yes
+        # We have color support; assume it's compliant with Ecma-48
+        # (ISO/IEC-6429). (Lack of such support is extremely rare, and such
+        # a case would tend to support setf rather than setaf.)
+        color_prompt=yes
     else
-	color_prompt=
+        color_prompt=
     fi
 fi
 
@@ -73,6 +73,35 @@ xterm*|rxvt*)
     ;;
 esac
 
+# enable programmable completion features (you don't need to enable
+# this, if it's already enabled in /etc/bash.bashrc and /etc/profile
+# sources /etc/bash.bashrc).
+if ! shopt -oq posix; then
+  if [ -f /usr/share/bash-completion/bash_completion ]; then
+    . /usr/share/bash-completion/bash_completion
+  elif [ -f /etc/bash_completion ]; then
+    . /etc/bash_completion
+  fi
+fi
+
+if [ -d "$HOME/.local/bin" ] ; then
+    PATH="$HOME/.local/bin:$PATH"
+fi
+
+if [ -f /tmp/.notmux ]; then
+    export NOTMUX=true
+    rm /tmp/.notmux
+fi
+
+# Functions
+
+# Resizes the current window to
+# $1 - width
+# $2 - height
+resize_current_window() {
+    wmctrl -r :ACTIVE: -e 0,$(xdotool getwindowgeometry $(xdotool getactivewindow) | grep "Position" | awk '{print $2}'),$1,$2
+}
+
 # enable color support of ls and also add handy aliases
 if [ -x /usr/bin/dircolors ]; then
     test -r ~/.dircolors && eval "$(dircolors -b ~/.dircolors)" || eval "$(dircolors -b)"
@@ -80,7 +109,7 @@ if [ -x /usr/bin/dircolors ]; then
     #alias dir='dir --color=auto'
     #alias vdir='vdir --color=auto'
 
-    #alias grep='grep --color=auto'
+    alias grep='grep --color=auto'
     #alias fgrep='fgrep --color=auto'
     #alias egrep='egrep --color=auto'
 fi
@@ -97,48 +126,31 @@ fi
 # You may want to put all your additions into a separate file like
 # ~/.bash_aliases, instead of adding them here directly.
 # See /usr/share/doc/bash-doc/examples in the bash-doc package.
-
 if [ -f ~/.bash_aliases ]; then
     . ~/.bash_aliases
 fi
 
-# enable programmable completion features (you don't need to enable
-# this, if it's already enabled in /etc/bash.bashrc and /etc/profile
-# sources /etc/bash.bashrc).
-if ! shopt -oq posix; then
-  if [ -f /usr/share/bash-completion/bash_completion ]; then
-    . /usr/share/bash-completion/bash_completion
-  elif [ -f /etc/bash_completion ]; then
-    . /etc/bash_completion
-  fi
-fi
-
-if [ -d "$HOME/.local/bin" ] ; then
-    PATH="$HOME/.local/bin:$PATH"
-fi
-export FLYCTL_INSTALL="/home/syed-f/.fly"
-export PATH="$FLYCTL_INSTALL/bin:$PATH"
-
-if [ -f /tmp/.notmux ]; then
-    export NOTMUX=true
-    rm /tmp/.notmux
-fi
-
 alias lynx='lynx -vikeys'
 # alias tmux="tmux -2"
-alias xt132x43="wmctrl -r :ACTIVE: -e 0,$(xdotool getwindowgeometry $(xdotool getactivewindow) | grep "Position" | awk '{print $2}'),1330,860"
-alias xt80x43="wmctrl -r :ACTIVE: -e 0,$(xdotool getwindowgeometry $(xdotool getactivewindow) | grep "Position" | awk '{print $2}'),804,860"
-alias xt80x24="wmctrl -r :ACTIVE: -e 0,$(xdotool getwindowgeometry $(xdotool getactivewindow) | grep "Position" | awk '{print $2}'),804,504"
-alias gitls-m='git diff --name-only origin/$(git branch --show-current)'
+alias xt132x43="resize_current_window 1330,860"
+alias xt80x43="resize_current_window 804,860"
+alias xt80x24="resize_current_window 804,504"
+##alias gitls-m='git diff --name-only origin/$(git branch --show-current)'
 alias tmuxt2='tmux -L syed-f2 -f ~/.config/tmux/tmux.2.conf'
+##alias yarn='yarn --use-yarnrc ~/.config/yarn/config'
 
 #export VIMINIT='let $MYVIMRC="~/.config/vim/vimrc" | source $MYVIMRC'
 export XAUTHORITY="$XDG_RUNTIME_DIR"/Xauthority
-alias yarn='yarn --use-yarnrc ~/.config/yarn/config'
-export GRADLE_USER_HOME=~/.local/share/gradle
+##export GRADLE_USER_HOME=~/.local/share/gradle
+##export FLYCTL_INSTALL="/home/syed-f/.fly"
+##export PATH="$FLYCTL_INSTALL/bin:$PATH"
 
 case $- in *i*)
     [ "$NOTMUX" != "true" ] && [ "$TERM_PROGRAM" != "vscode" ] && [ "$TERM" == "xterm-256color" ] && [ -z "$TMUX" ] && exec tmux
 esac
 
 set -o vi
+
+export NVM_DIR="$HOME/.nvm"
+[ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"  # This loads nvm
+[ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"  # This loads nvm bash_completion
