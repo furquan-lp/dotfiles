@@ -1,6 +1,6 @@
 *vt100.geometry: 80x25
 *renderFont: true
-*faceName: Noto Mono
+*faceName: DroidSansM Nerd Font
 *faceSize: 11
 *cursorBlink: true
 *cursorOffTime: 500
