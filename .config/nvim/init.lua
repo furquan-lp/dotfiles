@@ -1,166 +1,192 @@
--- Set up nvim-cmp.
-local cmp = require'cmp'
+-- Config begins here --
 
-cmp.setup({
-  snippet = {
-    -- REQUIRED - you must specify a snippet engine
-    expand = function(args)
-      vim.fn["vsnip#anonymous"](args.body) -- For `vsnip` users.
-      -- require('luasnip').lsp_expand(args.body) -- For `luasnip` users.
-      -- require('snippy').expand_snippet(args.body) -- For `snippy` users.
-      -- vim.fn["UltiSnips#Anon"](args.body) -- For `ultisnips` users.
-    end,
-  },
-  window = {
-    -- completion = cmp.config.window.bordered(),
-    -- documentation = cmp.config.window.bordered(),
-  },
-  mapping = cmp.mapping.preset.insert({
-    ['<C-b>'] = cmp.mapping.scroll_docs(-4),
-    ['<C-f>'] = cmp.mapping.scroll_docs(4),
-    ['<C-Space>'] = cmp.mapping.complete(),
-    ['<C-e>'] = cmp.mapping.abort(),
-    ['<CR>'] = cmp.mapping.confirm({ select = true }), -- Accept currently selected item. Set `select` to `false` to only confirm explicitly selected items.
-  }),
-  sources = cmp.config.sources({
-    { name = 'nvim_lsp' },
-    { name = 'vsnip' }, -- For vsnip users.
-  }, {
-    { name = 'buffer' },
-  })
-})
+-- Tab and indentation settings
+vim.opt.tabstop = 4
+vim.opt.shiftwidth = 4
+vim.opt.expandtab = true
 
--- Set configuration for specific filetype.
-cmp.setup.filetype('gitcommit', {
-  sources = cmp.config.sources({
-    { name = 'git' }, -- You can specify the `git` source if [you were installed it](https://github.com/petertriho/cmp-git).
-  }, {
-    { name = 'buffer' },
-  })
-})
+-- Color column at 81 characters
+vim.opt.colorcolumn = "81"
+-- Highlight ColorColumn
+vim.cmd([[highlight ColorColumn ctermbg=0]])
 
--- Use buffer source for `/` and `?` (if you enabled `native_menu`, this won't work anymore).
-cmp.setup.cmdline({ '/', '?' }, {
-  mapping = cmp.mapping.preset.cmdline(),
-  sources = {
-    { name = 'buffer' }
-  }
-})
+-- netrw settings
+vim.g.netrw_banner = 0
+vim.g.netrw_liststyle = 3
+-- Don't move cursor to beginning of line
+vim.opt.startofline = false
+vim.opt.number = true
+vim.opt.relativenumber = true
+vim.opt.mouse = "a"
+vim.opt.breakindent = true
+vim.opt.undofile = true
+vim.opt.ignorecase = true
+vim.opt.smartcase = true
+-- vim.opt.signcolumn = 'yes'
+vim.o.updatetime = 250
+vim.opt.timeoutlen = 300
+vim.opt.splitright = true
+vim.opt.splitbelow = true
+vim.opt.list = true
+vim.opt.listchars = { tab = "» ", trail = "·", nbsp = "␣" }
+vim.opt.inccommand = "split"
+vim.opt.cursorline = true
+vim.opt.scrolloff = 10
+vim.opt.hlsearch = true
+vim.opt.linebreak = true
 
--- Use cmdline & path source for ':' (if you enabled `native_menu`, this won't work anymore).
---cmp.setup.cmdline(':', {
---  mapping = cmp.mapping.preset.cmdline(),
---  sources = cmp.config.sources({
---    { name = 'path' }
---  }, {
---    { name = 'cmdline' }
---  })
---})
+-- Make sure to setup `mapleader` and `maplocalleader` before
+-- loading lazy.nvim so that mappings are correct.
+-- This is also a good place to setup other settings (vim.opt)
+--vim.g.mapleader = " "
+--vim.g.maplocalleader = "\\"
+vim.g.mapleader = ","
+vim.g.maplocalleader = ","
 
--- Set up lspconfig.
-local capabilities = require('cmp_nvim_lsp').default_capabilities()
+-- Keymaps begin here
 
+-- Quickly switch buffers
+vim.keymap.set("n", "<S-TAB>", ":bprevious<CR>")
+vim.keymap.set("n", "<TAB>", ":bnext<CR>")
+vim.keymap.set("n", "<leader>l", ":buffers<CR>")
+
+vim.keymap.set("n", "<Esc>", "<cmd>nohlsearch<CR>")
+vim.keymap.set("t", "<Esc><Esc>", "<C-\\><C-n>", { desc = "Exit terminal mode" })
+
+require("config.lazy")
+
+-- Use mason instead
+--
 -- Setup language servers.
-local lspconfig = require('lspconfig')
-require'lspconfig'.pylsp.setup{
-on_attach = custom_attach,
-settings = {
-    pylsp = {
-    plugins = {
-        pycodestyle = {
-            ignore = {'W391'},
-            maxLineLength = 120
-        },
-        pylsp_mypy = { enabled = true },
-        jedi_completion = {
-            enabled = true,
-            fuzzy = true
-        },
-        pyls_isort = { enabled = true },
-    },
-    },
-},
-flags = {
-    debounce_text_changes = 200,
-},
-}
-lspconfig.tsserver.setup {}
+--local lspconfig = require('lspconfig')
+--vim.lsp.config('pylsp', {
+--    on_attach = custom_attach,
+--    settings = {
+--        pylsp = {
+--            plugins = {
+--                pycodestyle = {
+--                    ignore = { 'W391' },
+--                    maxLineLength = 120
+--                },
+--                pylsp_mypy = { enabled = true },
+--                jedi_completion = {
+--                    enabled = true,
+--                    fuzzy = true
+--                },
+--                pyls_isort = { enabled = true },
+--                rope_autoimport = { enabled = true },
+--            },
+--        },
+--    },
+--    flags = {
+--        debounce_text_changes = 200,
+--    },
+--})
+--vim.lsp.enable('pylsp')
+--vim.lsp.enable('ts_ls')
 
--- Global mappings.
--- See `:help vim.diagnostic.*` for documentation on any of the below functions
--- vim.keymap.set('n', '<space>e', vim.diagnostic.open_float)
-vim.keymap.set('n', '[d', vim.diagnostic.goto_prev)
-vim.keymap.set('n', ']d', vim.diagnostic.goto_next)
-vim.keymap.set('n', '<space>q', vim.diagnostic.setloclist)
-
+-- Configured in plugins.lua
+--
 -- Use LspAttach autocommand to only map the following keys
 -- after the language server attaches to the current buffer
-vim.api.nvim_create_autocmd('LspAttach', {
-  group = vim.api.nvim_create_augroup('UserLspConfig', {}),
-  callback = function(ev)
-    -- Enable completion triggered by <c-x><c-o>
-    vim.bo[ev.buf].omnifunc = 'v:lua.vim.lsp.omnifunc'
-
-    -- Buffer local mappings.
-    -- See `:help vim.lsp.*` for documentation on any of the below functions
-    local opts = { buffer = ev.buf }
-    vim.keymap.set('n', 'gD', vim.lsp.buf.declaration, opts)
-    vim.keymap.set('n', 'gd', vim.lsp.buf.definition, opts)
-    vim.keymap.set('n', 'K', vim.lsp.buf.hover, opts)
-    vim.keymap.set('n', 'gi', vim.lsp.buf.implementation, opts)
-    vim.keymap.set('n', '<C-k>', vim.lsp.buf.signature_help, opts)
-    vim.keymap.set('n', '<space>wa', vim.lsp.buf.add_workspace_folder, opts)
-    vim.keymap.set('n', '<space>wr', vim.lsp.buf.remove_workspace_folder, opts)
-    vim.keymap.set('n', '<space>wl', function()
-      print(vim.inspect(vim.lsp.buf.list_workspace_folders()))
-    end, opts)
-    vim.keymap.set('n', '<space>D', vim.lsp.buf.type_definition, opts)
-    vim.keymap.set('n', '<space>rn', vim.lsp.buf.rename, opts)
-    vim.keymap.set({ 'n', 'v' }, '<space>ca', vim.lsp.buf.code_action, opts)
-    vim.keymap.set('n', 'gr', vim.lsp.buf.references, opts)
-    vim.keymap.set('n', '<space>f', function()
-      vim.lsp.buf.format { async = true }
-    end, opts)
-  end,
-})
+--vim.api.nvim_create_autocmd("LspAttach", {
+--    group = vim.api.nvim_create_augroup("UserLspConfig", {}),
+--    callback = function(ev)
+--        -- Enable completion triggered by <c-x><c-o>
+--        vim.bo[ev.buf].omnifunc = "v:lua.vim.lsp.omnifunc"
+--
+--        -- Buffer local mappings.
+--        -- See `:help vim.lsp.*` for documentation on any of the below functions
+--        local opts = { buffer = ev.buf }
+--        vim.keymap.set("n", "gD", vim.lsp.buf.declaration, opts)
+--        vim.keymap.set("n", "gd", vim.lsp.buf.definition, opts)
+--        vim.keymap.set("n", "K", vim.lsp.buf.hover, opts)
+--        vim.keymap.set("n", "gi", vim.lsp.buf.implementation, opts)
+--        vim.keymap.set("n", "<C-k>", vim.lsp.buf.signature_help, opts)
+--        vim.keymap.set("n", "<space>wa", vim.lsp.buf.add_workspace_folder, opts)
+--        vim.keymap.set("n", "<space>wr", vim.lsp.buf.remove_workspace_folder, opts)
+--        vim.keymap.set("n", "<space>wl", function()
+--            print(vim.inspect(vim.lsp.buf.list_workspace_folders()))
+--        end, opts)
+--        vim.keymap.set("n", "<space>D", vim.lsp.buf.type_definition, opts)
+--        vim.keymap.set("n", "<space>rn", vim.lsp.buf.rename, opts)
+--        vim.keymap.set({ "n", "v" }, "<space>ca", vim.lsp.buf.code_action, opts)
+--        vim.keymap.set("n", "gr", vim.lsp.buf.references, opts)
+--        vim.keymap.set("n", "<space>f", function()
+--            vim.lsp.buf.format({ async = true })
+--        end, opts)
+--    end,
+--})
 
 -- custom functions --
 
-function setDefaultTheme()
+function SetDefaultTheme()
     -- color scheme code
     -- TODO
     local hour = tonumber(os.date("%H"))
     if hour > 17 or hour <= 5 then
-        vim.cmd.colorscheme('kanagawa-wave')
+        vim.cmd.colorscheme("kanagawa-wave")
     else
-        vim.cmd.colorscheme('gruvbox')
+        vim.cmd.colorscheme("gruvbox")
         vim.opt.termguicolors = true
         vim.g.gruvbox_invert_selection = 0
-        vim.opt.background = 'light'
+        vim.opt.background = "light"
     end
 end
 
--- config begins here --
+-- Diagnostic keymaps
+vim.keymap.set("n", "<space>e", vim.diagnostic.open_float)
+vim.keymap.set("n", "<space>q", vim.diagnostic.setloclist)
 
-vim.diagnostic.config({
-    virtual_text = false
+vim.keymap.set("n", "[d", vim.diagnostic.goto_prev, { desc = "Go to previous [D]iagnostic message" })
+vim.keymap.set("n", "]d", vim.diagnostic.goto_next, { desc = "Go to next [D]iagnostic message" })
+vim.keymap.set("n", "<leader>e", vim.diagnostic.open_float, { desc = "Show diagnostic [E]rror messages" })
+vim.keymap.set("n", "<leader>q", vim.diagnostic.setloclist, { desc = "Open diagnostic [Q]uickfix list" })
+
+--  See `:help wincmd` for a list of all window commands
+vim.keymap.set("n", "<C-h>", "<C-w><C-h>", { desc = "Move focus to the left window" })
+vim.keymap.set("n", "<C-l>", "<C-w><C-l>", { desc = "Move focus to the right window" })
+vim.keymap.set("n", "<C-j>", "<C-w><C-j>", { desc = "Move focus to the lower window" })
+vim.keymap.set("n", "<C-k>", "<C-w><C-k>", { desc = "Move focus to the upper window" })
+
+-- Highlight when yanking (copying) text
+--  Try it with `yap` in normal mode
+--  See `:help vim.hl.on_yank()`
+vim.api.nvim_create_autocmd("TextYankPost", {
+    desc = "Highlight when yanking (copying) text",
+    group = vim.api.nvim_create_augroup("kickstart-highlight-yank", { clear = true }),
+    callback = function()
+        vim.hl.on_yank()
+    end,
 })
 
-vim.o.updatetime = 250
-vim.cmd [[autocmd CursorHold,CursorHoldI * lua vim.diagnostic.open_float(nil, {focus=false})]]
+-- Restore cursor position when reopening files (excluding git commit/rebase)
+vim.api.nvim_create_autocmd("BufReadPost", {
+    callback = function()
+        local ft = vim.bo.filetype
+        if not ft:match("commit") and not ft:match("rebase") then
+            local last_pos = vim.fn.line([['"]])
+            if last_pos > 1 and last_pos <= vim.fn.line("$") then
+                vim.cmd([[normal! g`"]])
+            end
+        end
+    end,
+})
 
-vim.cmd [[autocmd BufWritePre <buffer> lua vim.lsp.buf.format()]]
+vim.cmd([[autocmd CursorHold,CursorHoldI * lua vim.diagnostic.open_float(nil, {focus=false})]])
+
+vim.cmd([[autocmd BufWritePre <buffer> lua vim.lsp.buf.format()]])
 -- vim.api.nvim_set_keymap('v', '<Esc>', [[<Esc>`>a]] .. 'gv"*ygv', {noremap = true, silent = true})
 vim.api.nvim_create_autocmd("CursorMoved", {
-  desc = "Keep * synced with selection",
-  callback = function()
-    local mode = vim.fn.mode(false)
-    if mode == "v" or mode == "V" or mode == "\22" then
-      vim.cmd([[silent norm "*ygv]])
-    end
-  end,
+    desc = "Keep * synced with selection",
+    callback = function()
+        local mode = vim.fn.mode(false)
+        if mode == "v" or mode == "V" or mode == "\22" then
+            vim.cmd([[silent norm "*ygv]])
+        end
+    end,
 })
 
-vim.api.nvim_command('filetype plugin on')
+vim.api.nvim_command("filetype plugin on")
 
-setDefaultTheme()
+SetDefaultTheme()
