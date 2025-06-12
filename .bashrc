@@ -153,7 +153,7 @@ uxterm_color_scheme() {
     }
     if { [ ! -f /tmp/.colormode_ran_dark ] && is_hour_dark; } || \
         { [ ! -f /tmp/.colormode_ran_light ] && ! is_hour_dark; }; then
-        ./colormode "$hours"
+        uxterm-setcolor "$hours"
     fi
 }
 
