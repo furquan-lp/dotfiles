@@ -145,6 +145,19 @@ export XAUTHORITY="$XDG_RUNTIME_DIR"/Xauthority
 ##export FLYCTL_INSTALL="/home/syed-f/.fly"
 ##export PATH="$FLYCTL_INSTALL/bin:$PATH"
 
+uxterm_color_scheme() {
+    local hours
+    hours=$(date +%H)
+    is_hour_dark() {
+        [ "$hours" -gt 17 ] || [ "$hours" -lt 6 ]
+    }
+    if { [ ! -f /tmp/.colormode_ran_dark ] && is_hour_dark; } || \
+        { [ ! -f /tmp/.colormode_ran_light ] && ! is_hour_dark; }; then
+        ./colormode "$hours"
+    fi
+}
+
+uxterm_color_scheme
 case $- in *i*)
     [ "$NOTMUX" != "true" ] && [ "$TERM_PROGRAM" != "vscode" ] && [ "$TERM" == "xterm-256color" ] && [ -z "$TMUX" ] && exec tmux
 esac
