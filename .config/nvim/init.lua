@@ -34,6 +34,8 @@ vim.opt.cursorline = true
 vim.opt.scrolloff = 10
 vim.opt.hlsearch = true
 vim.opt.linebreak = true
+-- 24-bit color
+vim.opt.termguicolors = true
 
 -- Make sure to setup `mapleader` and `maplocalleader` before
 -- loading lazy.nvim so that mappings are correct.
@@ -127,9 +129,8 @@ function SetDefaultTheme()
     if hour > 17 or hour <= 5 then
         vim.cmd.colorscheme("kanagawa-wave")
     else
-        vim.cmd.colorscheme("gruvbox")
-        vim.opt.termguicolors = true
-        vim.g.gruvbox_invert_selection = 0
+        vim.cmd.colorscheme("kanagawa-lotus")
+        -- vim.g.gruvbox_invert_selection = 0
         vim.opt.background = "light"
     end
 end
