@@ -123,16 +123,16 @@ require("config.lazy")
 -- custom functions --
 
 function SetDefaultTheme()
-    -- color scheme code
-    -- TODO
-    local hour = tonumber(os.date("%H"))
-    if hour > 17 or hour <= 5 then
-        vim.cmd.colorscheme("kanagawa-wave")
-    else
-        vim.cmd.colorscheme("kanagawa-lotus")
-        -- vim.g.gruvbox_invert_selection = 0
-        vim.opt.background = "light"
-    end
+	-- color scheme code
+	-- TODO
+	local hour = tonumber(os.date("%H"))
+	if hour > 17 or hour <= 5 then
+		vim.cmd.colorscheme("kanagawa-wave")
+	else
+		vim.cmd.colorscheme("kanagawa-lotus")
+		-- vim.g.gruvbox_invert_selection = 0
+		vim.opt.background = "light"
+	end
 end
 
 -- Diagnostic keymaps
@@ -154,38 +154,37 @@ vim.keymap.set("n", "<C-k>", "<C-w><C-k>", { desc = "Move focus to the upper win
 --  Try it with `yap` in normal mode
 --  See `:help vim.hl.on_yank()`
 vim.api.nvim_create_autocmd("TextYankPost", {
-    desc = "Highlight when yanking (copying) text",
-    group = vim.api.nvim_create_augroup("kickstart-highlight-yank", { clear = true }),
-    callback = function()
-        vim.hl.on_yank()
-    end,
+	desc = "Highlight when yanking (copying) text",
+	group = vim.api.nvim_create_augroup("kickstart-highlight-yank", { clear = true }),
+	callback = function()
+		vim.hl.on_yank()
+	end,
 })
 
 -- Restore cursor position when reopening files (excluding git commit/rebase)
 vim.api.nvim_create_autocmd("BufReadPost", {
-    callback = function()
-        local ft = vim.bo.filetype
-        if not ft:match("commit") and not ft:match("rebase") then
-            local last_pos = vim.fn.line([['"]])
-            if last_pos > 1 and last_pos <= vim.fn.line("$") then
-                vim.cmd([[normal! g`"]])
-            end
-        end
-    end,
+	callback = function()
+		local ft = vim.bo.filetype
+		if not ft:match("commit") and not ft:match("rebase") then
+			local last_pos = vim.fn.line([['"]])
+			if last_pos > 1 and last_pos <= vim.fn.line("$") then
+				vim.cmd([[normal! g`"]])
+			end
+		end
+	end,
 })
 
 vim.cmd([[autocmd CursorHold,CursorHoldI * lua vim.diagnostic.open_float(nil, {focus=false})]])
 
-vim.cmd([[autocmd BufWritePre <buffer> lua vim.lsp.buf.format()]])
 -- vim.api.nvim_set_keymap('v', '<Esc>', [[<Esc>`>a]] .. 'gv"*ygv', {noremap = true, silent = true})
 vim.api.nvim_create_autocmd("CursorMoved", {
-    desc = "Keep * synced with selection",
-    callback = function()
-        local mode = vim.fn.mode(false)
-        if mode == "v" or mode == "V" or mode == "\22" then
-            vim.cmd([[silent norm "*ygv]])
-        end
-    end,
+	desc = "Keep * synced with selection",
+	callback = function()
+		local mode = vim.fn.mode(false)
+		if mode == "v" or mode == "V" or mode == "\22" then
+			vim.cmd([[silent norm "*ygv]])
+		end
+	end,
 })
 
 vim.api.nvim_command("filetype plugin on")

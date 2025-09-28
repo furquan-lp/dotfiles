@@ -171,3 +171,11 @@ export NVM_DIR="$HOME/.nvm"
 # Set up fzf key bindings and fuzzy completion
 eval "$(fzf --bash)"
 eval "$(starship init bash)"
+
+# pnpm
+export PNPM_HOME="/home/syedf/.local/share/pnpm"
+case ":$PATH:" in
+  *":$PNPM_HOME:"*) ;;
+  *) export PATH="$PNPM_HOME:$PATH" ;;
+esac
+# pnpm end

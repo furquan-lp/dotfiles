@@ -4,26 +4,24 @@ case "$1" in ''|*[!0-9]*)
     echo "Error: date +%H \"$1\" is not a number" && exit ;;
 esac
 
-rm /tmp/.colormode*
+if [ -f /tmp/.colormode* ]; then
+    rm /tmp/.colormode*
+fi
 
+xrdb ~/.Xresources
 if [ "$1" -gt 17 ] || [ "$1" -lt 6 ]; then
     tmux source ~/.config/tmux/tmux.conf
-    xrdb ~/.Xresources
     xrdb -merge ~/.config/X11/Xresources.kanagawa
-    gsettings set org.cinnamon.desktop.interface text-scaling-factor 1.2
-    gsettings set org.cinnamon.desktop.interface text-scaling-factor 1.1
     touch /tmp/.colormode_ran_dark
-    sleep 1s
-    tmux detach -s $(tmux display-message -p '#S')
-    uxterm -e 'bash -c "touch /tmp/.notmux; exec bash"' &
 else
     tmux source ~/.config/tmux/tmux.light.conf
-    xrdb ~/.Xresources
     xrdb -merge ~/.config/X11/Xresources.light
-    gsettings set org.cinnamon.desktop.interface text-scaling-factor 1.2
-    gsettings set org.cinnamon.desktop.interface text-scaling-factor 1.1
     touch /tmp/.colormode_ran_light
-    sleep 1s
-    tmux detach -s $(tmux display-message -p '#S')
-    uxterm -e 'bash -c "touch /tmp/.notmux; exec bash"' &
 fi
+gsettings set org.cinnamon.desktop.interface text-scaling-factor 1.2
+gsettings set org.cinnamon.desktop.interface text-scaling-factor 1.1
+sleep 1s
+#tmux detach -s $(tmux display-message -p '#S')
+uxterm &
+sleep 1s
+exit
