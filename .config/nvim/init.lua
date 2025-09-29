@@ -5,11 +5,6 @@
 -- vim.opt.shiftwidth = 4
 vim.opt.expandtab = true
 
--- Color column at 81 characters
-vim.opt.colorcolumn = "81"
--- Highlight ColorColumn
-vim.cmd([[highlight ColorColumn ctermbg=0]])
-
 -- netrw settings
 vim.g.netrw_banner = 0
 vim.g.netrw_liststyle = 3
@@ -36,6 +31,10 @@ vim.opt.hlsearch = true
 vim.opt.linebreak = true
 -- 24-bit color
 vim.opt.termguicolors = true
+-- Color column at 81 characters
+vim.opt.colorcolumn = { "81", "121" }
+-- Highlight ColorColumn (Don't use, set by the colorscheme)
+-- vim.api.nvim_set_hl(0, "ColorColumn", { ctermbg = 0, bg = "#2E3440" })
 
 -- Make sure to setup `mapleader` and `maplocalleader` before
 -- loading lazy.nvim so that mappings are correct.
@@ -50,7 +49,7 @@ vim.g.maplocalleader = ","
 -- Quickly switch buffers
 vim.keymap.set("n", "<S-TAB>", ":bprevious<CR>")
 vim.keymap.set("n", "<TAB>", ":bnext<CR>")
-vim.keymap.set("n", "<leader>l", ":buffers<CR>")
+-- vim.keymap.set("n", "<leader>l", ":buffers<CR>") -- No need with Telescope
 
 vim.keymap.set("n", "<Esc>", "<cmd>nohlsearch<CR>")
 vim.keymap.set("t", "<Esc><Esc>", "<C-\\><C-n>", { desc = "Exit terminal mode" })
@@ -150,7 +149,5 @@ vim.api.nvim_create_autocmd("CursorMoved", {
 		end
 	end,
 })
-
-vim.api.nvim_command("filetype plugin on")
 
 SetDefaultTheme()
