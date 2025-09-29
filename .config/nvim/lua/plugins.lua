@@ -1,5 +1,11 @@
 return {
-	"NMAC427/guess-indent.nvim",
+	{
+		"NMAC427/guess-indent.nvim",
+
+		config = function()
+			require("guess-indent").setup({})
+		end,
+	},
 	-- See `:help gitsigns` to understand what the configuration keys do
 	{
 		-- Adds git related signs to the gutter, as well as utilities for managing changes
@@ -37,7 +43,8 @@ return {
 	},
 	{
 		"nvim-telescope/telescope.nvim",
-		event = "VimEnter",
+		--event = "VimEnter",
+		cmd = "Telescope",
 		dependencies = {
 			"nvim-lua/plenary.nvim",
 			{ -- If encountering errors, see telescope-fzf-native README for installation instructions
@@ -81,12 +88,17 @@ return {
 			-- [[ Configure Telescope ]]
 			-- See `:help telescope` and `:help telescope.setup()`
 			require("telescope").setup({
-				-- defaults = {
-				--   mappings = {
-				--     i = { ['<c-enter>'] = 'to_fuzzy_refine' },
-				--   },
-				-- },
-				-- pickers = {}
+				defaults = {
+					--   mappings = {
+					--     i = { ['<c-enter>'] = 'to_fuzzy_refine' },
+					--   },
+					file_ignore_patterns = { ".git/" },
+				},
+				pickers = {
+					find_files = {
+						hidden = true,
+					},
+				},
 				extensions = {
 					["ui-select"] = {
 						require("telescope.themes").get_dropdown(),
@@ -455,8 +467,6 @@ return {
 				-- For an understanding of why the 'default' preset is recommended,
 				-- you will need to read `:help ins-completion`
 				--
-				-- No, but seriously. Please read `:help ins-completion`, it is really good!
-				--
 				-- All presets have the following mappings:
 				-- <tab>/<s-tab>: move to right/left of your snippet expansion
 				-- <c-space>: Open menu or open docs if already open
@@ -464,9 +474,8 @@ return {
 				-- <c-e>: Hide menu
 				-- <c-k>: Toggle signature help
 				--
-				-- See :h blink-cmp-config-keymap for defining your own keymap
-				preset = "enter",
-
+				-- See :h blink-cmp-config-keymap
+				preset = "super-tab",
 				-- For more advanced Luasnip keymaps (e.g. selecting choice nodes, expansion) see:
 				--    https://github.com/L3MON4D3/LuaSnip?tab=readme-ov-file#keymaps
 			},
@@ -479,8 +488,7 @@ return {
 
 			completion = {
 				-- By default, you may press `<c-space>` to show the documentation.
-				-- Optionally, set `auto_show = true` to show the documentation after a delay.
-				documentation = { auto_show = false, auto_show_delay_ms = 500 },
+				documentation = { auto_show = true, auto_show_delay_ms = 500 },
 			},
 
 			sources = {
@@ -509,41 +517,47 @@ return {
 		"echasnovski/mini.nvim",
 		config = function()
 			-- require('mini.ai').setup { n_lines = 500 }
-			-- require("mini.surround").setup()
+			local minifiles = require("mini.files")
+			minifiles.setup()
+			vim.keymap.set("n", "<leader>E", function()
+				local minifiles_state = minifiles.get_explorer_state()
+				if minifiles_state ~= nil then
+					minifiles.close()
+				else
+					local current_buf_path = vim.api.nvim_buf_get_name(0)
+					local file_explorer_path = vim.fn.empty(current_buf_path) == 1 and vim.fn.getcwd()
+						or vim.fn.fnamemodify(current_buf_path, ":h")
+					minifiles.open(file_explorer_path)
+				end
+			end, { desc = "[S]earch [H]elp" })
+			require("mini.surround").setup()
 			local miniclue = require("mini.clue")
 			miniclue.setup({
 				triggers = {
 					-- Leader triggers
 					{ mode = "n", keys = "<Leader>" },
 					{ mode = "x", keys = "<Leader>" },
-
 					-- Built-in completion
 					{ mode = "i", keys = "<C-x>" },
-
 					-- `g` key
 					{ mode = "n", keys = "g" },
 					{ mode = "x", keys = "g" },
-
 					-- Marks
 					{ mode = "n", keys = "'" },
 					{ mode = "n", keys = "`" },
 					{ mode = "x", keys = "'" },
 					{ mode = "x", keys = "`" },
-
 					-- Registers
 					{ mode = "n", keys = '"' },
 					{ mode = "x", keys = '"' },
 					{ mode = "i", keys = "<C-r>" },
 					{ mode = "c", keys = "<C-r>" },
-
 					-- Window commands
 					{ mode = "n", keys = "<C-w>" },
-
 					-- `z` key
 					{ mode = "n", keys = "z" },
 					{ mode = "x", keys = "z" },
 				},
-
 				clues = {
 					-- Enhance this by adding descriptions for <Leader> mapping groups
 					miniclue.gen_clues.builtin_completion(),
@@ -619,7 +633,7 @@ return {
 		},
 	},
 	"rebelot/kanagawa.nvim",
-	{ "ellisonleao/gruvbox.nvim", priority = 1000, config = true, opts = ... },
+	{ "ellisonleao/gruvbox.nvim", priority = 1000, config = true, opts = {} },
 	{
 		"sphamba/smear-cursor.nvim",
 		opts = {
