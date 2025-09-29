@@ -1,8 +1,8 @@
 -- Config begins here --
 
 -- Tab and indentation settings
-vim.opt.tabstop = 4
-vim.opt.shiftwidth = 4
+-- vim.opt.tabstop = 4
+-- vim.opt.shiftwidth = 4
 vim.opt.expandtab = true
 
 -- Color column at 81 characters
@@ -23,7 +23,7 @@ vim.opt.undofile = true
 vim.opt.ignorecase = true
 vim.opt.smartcase = true
 -- vim.opt.signcolumn = 'yes'
-vim.o.updatetime = 250
+vim.opt.updatetime = 250
 vim.opt.timeoutlen = 300
 vim.opt.splitright = true
 vim.opt.splitbelow = true
@@ -73,9 +73,6 @@ function SetDefaultTheme()
 end
 
 -- Diagnostic keymaps
-vim.keymap.set("n", "<space>e", vim.diagnostic.open_float)
-vim.keymap.set("n", "<space>q", vim.diagnostic.setloclist)
-
 vim.keymap.set("n", "[d", vim.diagnostic.goto_prev, { desc = "Go to previous [D]iagnostic message" })
 vim.keymap.set("n", "]d", vim.diagnostic.goto_next, { desc = "Go to next [D]iagnostic message" })
 vim.keymap.set("n", "<leader>e", vim.diagnostic.open_float, { desc = "Show diagnostic [E]rror messages" })
