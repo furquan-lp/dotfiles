@@ -57,69 +57,6 @@ vim.keymap.set("t", "<Esc><Esc>", "<C-\\><C-n>", { desc = "Exit terminal mode" }
 
 require("config.lazy")
 
--- Use mason instead
---
--- Setup language servers.
---local lspconfig = require('lspconfig')
---vim.lsp.config('pylsp', {
---    on_attach = custom_attach,
---    settings = {
---        pylsp = {
---            plugins = {
---                pycodestyle = {
---                    ignore = { 'W391' },
---                    maxLineLength = 120
---                },
---                pylsp_mypy = { enabled = true },
---                jedi_completion = {
---                    enabled = true,
---                    fuzzy = true
---                },
---                pyls_isort = { enabled = true },
---                rope_autoimport = { enabled = true },
---            },
---        },
---    },
---    flags = {
---        debounce_text_changes = 200,
---    },
---})
---vim.lsp.enable('pylsp')
---vim.lsp.enable('ts_ls')
-
--- Configured in plugins.lua
---
--- Use LspAttach autocommand to only map the following keys
--- after the language server attaches to the current buffer
---vim.api.nvim_create_autocmd("LspAttach", {
---    group = vim.api.nvim_create_augroup("UserLspConfig", {}),
---    callback = function(ev)
---        -- Enable completion triggered by <c-x><c-o>
---        vim.bo[ev.buf].omnifunc = "v:lua.vim.lsp.omnifunc"
---
---        -- Buffer local mappings.
---        -- See `:help vim.lsp.*` for documentation on any of the below functions
---        local opts = { buffer = ev.buf }
---        vim.keymap.set("n", "gD", vim.lsp.buf.declaration, opts)
---        vim.keymap.set("n", "gd", vim.lsp.buf.definition, opts)
---        vim.keymap.set("n", "K", vim.lsp.buf.hover, opts)
---        vim.keymap.set("n", "gi", vim.lsp.buf.implementation, opts)
---        vim.keymap.set("n", "<C-k>", vim.lsp.buf.signature_help, opts)
---        vim.keymap.set("n", "<space>wa", vim.lsp.buf.add_workspace_folder, opts)
---        vim.keymap.set("n", "<space>wr", vim.lsp.buf.remove_workspace_folder, opts)
---        vim.keymap.set("n", "<space>wl", function()
---            print(vim.inspect(vim.lsp.buf.list_workspace_folders()))
---        end, opts)
---        vim.keymap.set("n", "<space>D", vim.lsp.buf.type_definition, opts)
---        vim.keymap.set("n", "<space>rn", vim.lsp.buf.rename, opts)
---        vim.keymap.set({ "n", "v" }, "<space>ca", vim.lsp.buf.code_action, opts)
---        vim.keymap.set("n", "gr", vim.lsp.buf.references, opts)
---        vim.keymap.set("n", "<space>f", function()
---            vim.lsp.buf.format({ async = true })
---        end, opts)
---    end,
---})
-
 -- custom functions --
 
 function SetDefaultTheme()
@@ -129,8 +66,8 @@ function SetDefaultTheme()
 	if hour > 17 or hour <= 5 then
 		vim.cmd.colorscheme("kanagawa-wave")
 	else
-		vim.cmd.colorscheme("kanagawa-lotus")
-		-- vim.g.gruvbox_invert_selection = 0
+		vim.cmd.colorscheme("gruvbox")
+		vim.g.gruvbox_invert_selection = 0
 		vim.opt.background = "light"
 	end
 end
@@ -176,13 +113,43 @@ vim.api.nvim_create_autocmd("BufReadPost", {
 
 vim.cmd([[autocmd CursorHold,CursorHoldI * lua vim.diagnostic.open_float(nil, {focus=false})]])
 
--- vim.api.nvim_set_keymap('v', '<Esc>', [[<Esc>`>a]] .. 'gv"*ygv', {noremap = true, silent = true})
+---- vim.api.nvim_set_keymap('v', '<Esc>', [[<Esc>`>a]] .. 'gv"*ygv', {noremap = true, silent = true})
+--vim.api.nvim_create_autocmd("CursorMoved", {
+--	desc = "Keep * synced with selection",
+--	callback = function()
+--		local mode = vim.fn.mode(false)
+--		if mode == "v" or mode == "V" or mode == "\22" then
+--			vim.cmd([[silent norm "*ygv]])
+--		end
+--	end,
+--})
+
+-- Debounced solution for clipboard=autoselect behavior workaround (similar to
+-- the above)in Neovim. Syncs visual selection to * register without
+-- interfering with which-key/mini.clue
+local timer = nil
+
+local function sync_selection()
+	local mode = vim.fn.mode()
+	if mode == "v" or mode == "V" or mode == "\22" then
+		local start_pos = vim.fn.getpos("v")
+		local end_pos = vim.fn.getpos(".")
+		local lines = vim.fn.getregion(start_pos, end_pos, { type = mode })
+		vim.fn.setreg("*", table.concat(lines, "\n"))
+	end
+end
+
 vim.api.nvim_create_autocmd("CursorMoved", {
-	desc = "Keep * synced with selection",
+	desc = "Keep * register synced with visual selection (debounced)",
 	callback = function()
-		local mode = vim.fn.mode(false)
+		local mode = vim.fn.mode()
 		if mode == "v" or mode == "V" or mode == "\22" then
-			vim.cmd([[silent norm "*ygv]])
+			-- Cancel previous timer
+			if timer then
+				vim.fn.timer_stop(timer)
+			end
+			-- Only sync after 200ms of no cursor movement
+			timer = vim.fn.timer_start(200, sync_selection)
 		end
 	end,
 })
