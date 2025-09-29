@@ -1,5 +1,4 @@
 return {
-	"hrsh7th/vim-vsnip",
 	"NMAC427/guess-indent.nvim",
 	-- See `:help gitsigns` to understand what the configuration keys do
 	{
