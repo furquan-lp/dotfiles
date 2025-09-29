@@ -92,7 +92,7 @@ return {
 					--   mappings = {
 					--     i = { ['<c-enter>'] = 'to_fuzzy_refine' },
 					--   },
-					file_ignore_patterns = { ".git/" },
+					file_ignore_patterns = { "%.git/" },
 				},
 				pickers = {
 					find_files = {
@@ -529,8 +529,8 @@ return {
 						or vim.fn.fnamemodify(current_buf_path, ":h")
 					minifiles.open(file_explorer_path)
 				end
-			end, { desc = "[S]earch [H]elp" })
-			require("mini.surround").setup()
+			end, { desc = "Toggle mini [E]xplorer" })
+
 			local miniclue = require("mini.clue")
 			miniclue.setup({
 				triggers = {
@@ -568,7 +568,6 @@ return {
 					miniclue.gen_clues.z(),
 				},
 			})
-			require("mini.comment").setup()
 
 			-- Simple and easy statusline.
 			local statusline = require("mini.statusline")
@@ -583,14 +582,23 @@ return {
 				return "%2l:%-2v"
 			end
 
-			-- ... and there is more!
-			--  Check out: https://github.com/echasnovski/mini.nvim
+			local indentscope = require("mini.indentscope")
+			indentscope.setup({
+				symbol = "░",
+				draw = {
+					animation = indentscope.gen_animation.linear({ duration = 10, unit = "step", easing = "in" }),
+				},
+			})
+
+			require("mini.surround").setup()
+			require("mini.comment").setup()
+			require("mini.trailspace").setup()
 		end,
 	},
-	{ -- Highlight, edit, and navigate code
+	{
 		"nvim-treesitter/nvim-treesitter",
 		build = ":TSUpdate",
-		main = "nvim-treesitter.configs", -- Sets main module to use for opts
+		main = "nvim-treesitter.configs",
 		-- [[ Configure Treesitter ]] See `:help nvim-treesitter`
 		opts = {
 			ensure_installed = {
@@ -605,6 +613,8 @@ return {
 				"query",
 				"vim",
 				"vimdoc",
+				"javascript",
+				"typescript",
 			},
 			-- Autoinstall languages that are not installed
 			auto_install = true,
@@ -624,6 +634,7 @@ return {
 		--    - Show your current context: https://github.com/nvim-treesitter/nvim-treesitter-context
 		--    - Treesitter + textobjects: https://github.com/nvim-treesitter/nvim-treesitter-textobjects
 	},
+	"nvim-treesitter/nvim-treesitter-context",
 	{
 		"m4xshen/hardtime.nvim",
 		lazy = false,
