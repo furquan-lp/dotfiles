@@ -1,7 +1,7 @@
 -- Config begins here --
 
 -- Tab and indentation settings
--- vim.opt.tabstop = 4
+vim.opt.tabstop = 4
 -- vim.opt.shiftwidth = 4
 vim.opt.expandtab = true
 
@@ -47,29 +47,14 @@ vim.g.maplocalleader = ","
 -- Keymaps begin here
 
 -- Quickly switch buffers
-vim.keymap.set("n", "<S-TAB>", ":bprevious<CR>")
-vim.keymap.set("n", "<TAB>", ":bnext<CR>")
+vim.keymap.set("n", "<S-TAB>", ":bprevious<CR>", { desc = "Previous buffer" })
+vim.keymap.set("n", "<TAB>", ":bnext<CR>", { desc = "Next buffer" })
 -- vim.keymap.set("n", "<leader>l", ":buffers<CR>") -- No need with Telescope
 
 vim.keymap.set("n", "<Esc>", "<cmd>nohlsearch<CR>")
 vim.keymap.set("t", "<Esc><Esc>", "<C-\\><C-n>", { desc = "Exit terminal mode" })
 
 require("config.lazy")
-
--- custom functions --
-
-function SetDefaultTheme()
-	-- color scheme code
-	-- TODO
-	local hour = tonumber(os.date("%H"))
-	if hour > 17 or hour <= 5 then
-		vim.cmd.colorscheme("kanagawa-wave")
-	else
-		vim.cmd.colorscheme("gruvbox")
-		vim.g.gruvbox_invert_selection = 0
-		vim.opt.background = "light"
-	end
-end
 
 -- Diagnostic keymaps
 vim.keymap.set("n", "[d", vim.diagnostic.goto_prev, { desc = "Go to previous [D]iagnostic message" })
@@ -83,14 +68,23 @@ vim.keymap.set("n", "<C-l>", "<C-w><C-l>", { desc = "Move focus to the right win
 vim.keymap.set("n", "<C-j>", "<C-w><C-j>", { desc = "Move focus to the lower window" })
 vim.keymap.set("n", "<C-k>", "<C-w><C-k>", { desc = "Move focus to the upper window" })
 
+-- custom functions --
+
+function SetDefaultTheme()
+	-- color scheme code
+	local hour = tonumber(os.date("%H"))
+	if hour > 17 or hour <= 5 then
+		vim.cmd.colorscheme("kanagawa-wave")
+	else
+		vim.cmd.colorscheme("gruvbox")
+		vim.opt.background = "light"
+	end
+end
+
 -- Highlight when yanking (copying) text
---  Try it with `yap` in normal mode
---  See `:help vim.hl.on_yank()`
 vim.api.nvim_create_autocmd("TextYankPost", {
-	desc = "Highlight when yanking (copying) text",
-	group = vim.api.nvim_create_augroup("kickstart-highlight-yank", { clear = true }),
 	callback = function()
-		vim.hl.on_yank()
+		vim.highlight.on_yank()
 	end,
 })
 
@@ -106,8 +100,6 @@ vim.api.nvim_create_autocmd("BufReadPost", {
 		end
 	end,
 })
-
-vim.cmd([[autocmd CursorHold,CursorHoldI * lua vim.diagnostic.open_float(nil, {focus=false})]])
 
 ---- vim.api.nvim_set_keymap('v', '<Esc>', [[<Esc>`>a]] .. 'gv"*ygv', {noremap = true, silent = true})
 --vim.api.nvim_create_autocmd("CursorMoved", {
