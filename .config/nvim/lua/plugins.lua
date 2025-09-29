@@ -259,19 +259,6 @@ return {
 							end,
 						})
 					end
-
-					-- The following code creates a keymap to toggle inlay hints in your
-					-- code, if the language server you are using supports them
-					--
-					-- This may be unwanted, since they displace some of your code
-					if
-						client
-						and client_supports_method(client, vim.lsp.protocol.Methods.textDocument_inlayHint, event.buf)
-					then
-						map("<leader>th", function()
-							vim.lsp.inlay_hint.enable(not vim.lsp.inlay_hint.is_enabled({ bufnr = event.buf }))
-						end, "[T]oggle Inlay [H]ints")
-					end
 				end,
 			})
 			-- Diagnostic Config
@@ -326,7 +313,6 @@ return {
 				mason = {
 					-- Some languages (like typescript) have entire language plugins that can be useful:
 					--    https://github.com/pmizio/typescript-tools.nvim
-					--
 					pylsp = {
 						settings = {
 							pylsp = {
@@ -356,8 +342,6 @@ return {
 								completion = {
 									callSnippet = "Replace",
 								},
-								-- You can toggle below to ignore Lua_LS's noisy `missing-fields` warnings
-								-- diagnostics = { disable = { 'missing-fields' } },
 							},
 						},
 					},
@@ -424,10 +408,6 @@ return {
 				},
 			}
 
-			-- Ensure the servers and tools above are installed
-			--
-			-- You can add other tools here that you want Mason to install
-			-- for you, so that they are available from within Neovim.
 			local ensure_installed = vim.tbl_keys(servers.mason or {})
 			vim.list_extend(ensure_installed, {
 				"stylua", -- Used to format Lua code
@@ -468,8 +448,7 @@ return {
 			notify_on_error = false,
 			format_on_save = function(bufnr)
 				-- Disable "format_on_save lsp_fallback" for languages that don't
-				-- have a well standardized coding style. You can add additional
-				-- languages here or re-enable it for the disabled ones.
+				-- have a well standardized coding style.
 				local disable_filetypes = { c = true, cpp = true }
 				if disable_filetypes[vim.bo[bufnr].filetype] then
 					return
@@ -503,9 +482,6 @@ return {
 				"L3MON4D3/LuaSnip",
 				version = "2.*",
 				build = (function()
-					-- Build Step is needed for regex support in snippets.
-					-- This step is not supported in many windows environments.
-					-- Remove the below condition to re-enable on windows.
 					if vim.fn.has("win32") == 1 or vim.fn.executable("make") == 0 then
 						return
 					end
@@ -538,9 +514,6 @@ return {
 				-- 'enter' for enter to accept
 				-- 'none' for no mappings
 				--
-				-- For an understanding of why the 'default' preset is recommended,
-				-- you will need to read `:help ins-completion`
-				--
 				-- All presets have the following mappings:
 				-- <tab>/<s-tab>: move to right/left of your snippet expansion
 				-- <c-space>: Open menu or open docs if already open
@@ -550,8 +523,6 @@ return {
 				--
 				-- See :h blink-cmp-config-keymap
 				preset = "super-tab",
-				-- For more advanced Luasnip keymaps (e.g. selecting choice nodes, expansion) see:
-				--    https://github.com/L3MON4D3/LuaSnip?tab=readme-ov-file#keymaps
 			},
 
 			appearance = {
@@ -587,10 +558,9 @@ return {
 			signature = { enabled = true },
 		},
 	},
-	{ -- Collection of various small independent plugins/modules
+	{
 		"echasnovski/mini.nvim",
 		config = function()
-			-- require('mini.ai').setup { n_lines = 500 }
 			local minifiles = require("mini.files")
 			minifiles.setup()
 			vim.keymap.set("n", "<leader>E", function()
@@ -645,12 +615,9 @@ return {
 
 			-- Simple and easy statusline.
 			local statusline = require("mini.statusline")
-			-- set use_icons to true if you have a Nerd Font
 			statusline.setup({ use_icons = vim.g.have_nerd_font })
 
-			-- You can configure sections in the statusline by overriding their
-			-- default behavior. For example, here we set the section for
-			-- cursor location to LINE:COLUMN
+			-- here we set the section for cursor location to LINE:COLUMN
 			---@diagnostic disable-next-line: duplicate-set-field
 			statusline.section_location = function()
 				return "%2l:%-2v"
@@ -701,12 +668,6 @@ return {
 			},
 			indent = { enable = true, disable = { "ruby" } },
 		},
-		-- There are additional nvim-treesitter modules that you can use to interact
-		-- with nvim-treesitter. You should go explore a few and see what interests you:
-		--
-		--    - Incremental selection: Included, see `:help nvim-treesitter-incremental-selection-mod`
-		--    - Show your current context: https://github.com/nvim-treesitter/nvim-treesitter-context
-		--    - Treesitter + textobjects: https://github.com/nvim-treesitter/nvim-treesitter-textobjects
 	},
 	"nvim-treesitter/nvim-treesitter-context",
 	{

@@ -36,11 +36,6 @@ vim.opt.colorcolumn = { "81", "121" }
 -- Highlight ColorColumn (Don't use, set by the colorscheme)
 -- vim.api.nvim_set_hl(0, "ColorColumn", { ctermbg = 0, bg = "#2E3440" })
 
--- Make sure to setup `mapleader` and `maplocalleader` before
--- loading lazy.nvim so that mappings are correct.
--- This is also a good place to setup other settings (vim.opt)
---vim.g.mapleader = " "
---vim.g.maplocalleader = "\\"
 vim.g.mapleader = ","
 vim.g.maplocalleader = ","
 
@@ -113,7 +108,7 @@ vim.api.nvim_create_autocmd("BufReadPost", {
 --})
 
 -- Debounced solution for clipboard=autoselect behavior workaround (similar to
--- the above)in Neovim. Syncs visual selection to * register without
+-- the above) in Neovim. Syncs visual selection to * register without
 -- interfering with which-key/mini.clue
 local timer = nil
 

@@ -36,8 +36,6 @@ A lot of stuff is WIP.
 
 ### **Search (Telescope)**
 
-Your search prefix is `<leader>s`.
-
 | Keymap | Mode(s) | Description |
 | --- | --- | --- |
 | `<leader>sf` | Normal | **S**earch **F**iles (respects .gitignore). |
