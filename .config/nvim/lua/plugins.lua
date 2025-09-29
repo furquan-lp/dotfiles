@@ -156,6 +156,7 @@ return {
 			{ "mason-org/mason.nvim", opts = {} },
 			"mason-org/mason-lspconfig.nvim",
 			"WhoIsSethDaniel/mason-tool-installer.nvim",
+			{ "saghen/blink.cmp", opts = {} },
 
 			-- Useful status updates for LSP.
 			{ "j-hui/fidget.nvim", opts = {} },
@@ -213,9 +214,29 @@ return {
 					-- word under your cursor when your cursor rests there for a little while.
 					--    See `:help CursorHold` for information about when this is executed
 					--
+					-- This function resolves a difference between neovim nightly (version 0.11) and stable (version 0.10)
+					---@param client vim.lsp.Client
+					---@param method vim.lsp.protocol.Method
+					---@param bufnr? integer some lsp support methods only in specific files
+					---@return boolean
+					local function client_supports_method(client, method, bufnr)
+						if vim.fn.has("nvim-0.11") == 1 then
+							return client:supports_method(method, bufnr)
+						else
+							return client.supports_method(method, { bufnr = bufnr })
+						end
+					end
+
 					-- When you move your cursor, the highlights will be cleared (the second autocommand).
 					local client = vim.lsp.get_client_by_id(event.data.client_id)
-					if client then
+					if
+						client
+						and client_supports_method(
+							client,
+							vim.lsp.protocol.Methods.textDocument_documentHighlight,
+							event.buf
+						)
+					then
 						local highlight_augroup =
 							vim.api.nvim_create_augroup("kickstart-lsp-highlight", { clear = false })
 						vim.api.nvim_create_autocmd({ "CursorHold", "CursorHoldI" }, {
@@ -243,7 +264,10 @@ return {
 					-- code, if the language server you are using supports them
 					--
 					-- This may be unwanted, since they displace some of your code
-					if client then
+					if
+						client
+						and client_supports_method(client, vim.lsp.protocol.Methods.textDocument_inlayHint, event.buf)
+					then
 						map("<leader>th", function()
 							vim.lsp.inlay_hint.enable(not vim.lsp.inlay_hint.is_enabled({ bufnr = event.buf }))
 						end, "[T]oggle Inlay [H]ints")
@@ -279,99 +303,150 @@ return {
 				},
 			})
 
-			-- LSP servers and clients are able to communicate to each other what features they support.
-			--  By default, Neovim doesn't support everything that is in the LSP specification.
-			--  When you add blink.cmp, luasnip, etc. Neovim now has *more* capabilities.
-			--  So, we create new capabilities with blink.cmp, and then broadcast that to the servers.
-			local capabilities = require("blink.cmp").get_lsp_capabilities()
+			-- Language servers can broadly be installed in the following ways:
+			--  1) via the mason package manager; or
+			--  2) via your system's package manager; or
+			--  3) via a release binary from a language server's repo that's accessible somewhere on your system.
 
-			-- Enable the following language servers
-			--  Feel free to add/remove any LSPs that you want here. They will automatically be installed.
-			--
-			--  Add any additional override configuration in the following tables. Available keys are:
-			--  - cmd (table): Override the default command used to start the server
-			--  - filetypes (table): Override the default list of associated filetypes for the server
-			--  - capabilities (table): Override fields in capabilities. Can be used to disable certain LSP features.
-			--  - settings (table): Override the default settings passed when initializing the server.
-			--        For example, to see the options for `lua_ls`, you could go to: https://luals.github.io/wiki/settings/
+			-- The servers table comprises of the following sub-tables:
+			-- 1. mason
+			-- 2. others
+			-- Both these tables have an identical structure of language server names as keys and
+			-- a table of language server configuration as values.
+			---@class LspServersConfig
+			---@field mason table<string, vim.lsp.Config>
+			---@field others table<string, vim.lsp.Config>
 			local servers = {
-				-- clangd = {},
-				-- gopls = {},
-				-- pyright = {},
-				-- rust_analyzer = {},
-				-- ... etc. See `:help lspconfig-all` for a list of all the pre-configured LSPs
-				--
-				-- Some languages (like typescript) have entire language plugins that can be useful:
-				--    https://github.com/pmizio/typescript-tools.nvim
-				--
-				pylsp = {
-					settings = {
-						pylsp = {
-							plugins = {
-								pycodestyle = {
-									ignore = { "W391" },
-									maxLineLength = 120,
+				--  Add any additional override configuration in the following tables. Available keys are:
+				--  - cmd (table): Override the default command used to start the server
+				--  - filetypes (table): Override the default list of associated filetypes for the server
+				--  - capabilities (table): Override fields in capabilities. Can be used to disable certain LSP features.
+				--  - settings (table): Override the default settings passed when initializing the server.
+				--        For example, to see the options for `lua_ls`, you could go to: https://luals.github.io/wiki/settings/
+				mason = {
+					-- Some languages (like typescript) have entire language plugins that can be useful:
+					--    https://github.com/pmizio/typescript-tools.nvim
+					--
+					pylsp = {
+						settings = {
+							pylsp = {
+								plugins = {
+									pycodestyle = {
+										ignore = { "W391" },
+										maxLineLength = 120,
+									},
+									pylsp_mypy = { enabled = true },
+									jedi_completion = {
+										enabled = true,
+										fuzzy = true,
+									},
+									pyls_isort = { enabled = true },
+									rope_autoimport = { enabled = true },
 								},
-								pylsp_mypy = { enabled = true },
-								jedi_completion = {
-									enabled = true,
-									fuzzy = true,
+							},
+						},
+						flags = {
+							debounce_text_changes = 200,
+						},
+					},
+					ts_ls = {},
+					lua_ls = {
+						settings = {
+							Lua = {
+								completion = {
+									callSnippet = "Replace",
 								},
-								pyls_isort = { enabled = true },
-								rope_autoimport = { enabled = true },
+								-- You can toggle below to ignore Lua_LS's noisy `missing-fields` warnings
+								-- diagnostics = { disable = { 'missing-fields' } },
 							},
 						},
 					},
-					flags = {
-						debounce_text_changes = 200,
+					tailwindcss = {
+						-- Prevent the tailwind LSP from attaching to markdown files
+						filetypes = {
+							"aspnetcorerazor",
+							"astro",
+							-- "astro-markdown",
+							"blade",
+							"clojure",
+							"django-html",
+							"htmldjango",
+							"edge",
+							"eelixir",
+							"elixir",
+							"ejs",
+							"erb",
+							"eruby",
+							"gohtml",
+							"gohtmltmpl",
+							"haml",
+							"handlebars",
+							"hbs",
+							"html",
+							"htmlangular",
+							"html-eex",
+							"heex",
+							"jade",
+							"leaf",
+							"liquid",
+							-- "markdown",
+							"mdx",
+							"mustache",
+							"njk",
+							"nunjucks",
+							"php",
+							"razor",
+							"slim",
+							"twig",
+							"css",
+							"less",
+							"postcss",
+							"sass",
+							"scss",
+							"stylus",
+							"sugarss",
+							"javascript",
+							"javascriptreact",
+							"reason",
+							"rescript",
+							"typescript",
+							"typescriptreact",
+							"vue",
+							"svelte",
+							"templ",
+						},
 					},
 				},
-				ts_ls = {},
-				lua_ls = {
-					settings = {
-						Lua = {
-							completion = {
-								callSnippet = "Replace",
-							},
-							-- You can toggle below to ignore Lua_LS's noisy `missing-fields` warnings
-							-- diagnostics = { disable = { 'missing-fields' } },
-						},
-					},
+				-- This table contains config for all language servers that are *not* installed via Mason.
+				-- Structure is identical to the mason table from above.
+				others = {
+					-- dartls = {},
 				},
 			}
 
 			-- Ensure the servers and tools above are installed
 			--
-			-- To check the current status of installed tools and/or manually install
-			-- other tools, you can run
-			--    :Mason
-			--
-			-- You can press `g?` for help in this menu.
-			--
-			-- `mason` had to be setup earlier: to configure its options see the
-			-- `dependencies` table for `nvim-lspconfig` above.
-			--
 			-- You can add other tools here that you want Mason to install
 			-- for you, so that they are available from within Neovim.
-			local ensure_installed = vim.tbl_keys(servers or {})
+			local ensure_installed = vim.tbl_keys(servers.mason or {})
 			vim.list_extend(ensure_installed, {
 				"stylua", -- Used to format Lua code
 			})
 			require("mason-tool-installer").setup({ ensure_installed = ensure_installed })
 
+			-- Either merge all additional server configs from the `servers.mason` and `servers.others` tables
+			-- to the default language server configs as provided by nvim-lspconfig or
+			-- define a custom server config that's unavailable on nvim-lspconfig.
+			for server, config in pairs(vim.tbl_extend("keep", servers.mason, servers.others)) do
+				if not vim.tbl_isempty(config) then
+					vim.lsp.config(server, config)
+				end
+			end
+
+			-- After configuring our language servers, mason-lspconfig will automatically enable them
 			require("mason-lspconfig").setup({
 				ensure_installed = {}, -- explicitly set to an empty table (Kickstart populates installs via mason-tool-installer)
-				automatic_installation = false,
-				handlers = {
-					function(server_name)
-						local server = servers[server_name] or {}
-						-- This handles overriding only values explicitly passed
-						-- by the server configuration above. Useful when disabling
-						-- certain features of an LSP (for example, turning off formatting for ts_ls)
-						server.capabilities = vim.tbl_deep_extend("force", {}, capabilities, server.capabilities or {})
-						require("lspconfig")[server_name].setup(server)
-					end,
-				},
+				-- automatic_enable = true -- set to false to disable this feature
 			})
 		end,
 	},
@@ -418,7 +493,6 @@ return {
 			},
 		},
 	},
-
 	{ -- Autocompletion
 		"saghen/blink.cmp",
 		event = "VimEnter",
