@@ -2,7 +2,7 @@
 
 -- Tab and indentation settings
 vim.opt.tabstop = 4
--- vim.opt.shiftwidth = 4
+vim.opt.shiftwidth = 4
 vim.opt.expandtab = true
 
 -- netrw settings
@@ -68,10 +68,16 @@ vim.keymap.set("n", "<C-k>", "<C-w><C-k>", { desc = "Move focus to the upper win
 function SetDefaultTheme()
 	-- color scheme code
 	local hour = tonumber(os.date("%H"))
+	local dark_theme = "kanagawa-wave"
+	local light_theme = "gruvbox"
+	if vim.fn.has("mac") == 1 then
+		dark_theme = "nord"
+		light_theme = "nord"
+	end
 	if hour > 17 or hour <= 5 then
-		vim.cmd.colorscheme("kanagawa-wave")
+		vim.cmd.colorscheme(dark_theme)
 	else
-		vim.cmd.colorscheme("gruvbox")
+		vim.cmd.colorscheme(light_theme)
 		vim.opt.background = "light"
 	end
 end

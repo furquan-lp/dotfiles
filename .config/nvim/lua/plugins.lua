@@ -680,6 +680,7 @@ return {
 	},
 	"rebelot/kanagawa.nvim",
 	{ "ellisonleao/gruvbox.nvim", priority = 1000, config = true, opts = {} },
+	"shaunsingh/nord.nvim",
 	{
 		"sphamba/smear-cursor.nvim",
 		opts = {
