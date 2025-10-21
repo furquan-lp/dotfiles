@@ -43,7 +43,7 @@ return {
 	},
 	{
 		"nvim-telescope/telescope.nvim",
-		--event = "VimEnter",
+		event = "VimEnter",
 		cmd = "Telescope",
 		dependencies = {
 			"nvim-lua/plenary.nvim",
@@ -313,29 +313,14 @@ return {
 				mason = {
 					-- Some languages (like typescript) have entire language plugins that can be useful:
 					--    https://github.com/pmizio/typescript-tools.nvim
-					pylsp = {
-						settings = {
-							pylsp = {
-								plugins = {
-									pycodestyle = {
-										ignore = { "W391" },
-										maxLineLength = 120,
-									},
-									pylsp_mypy = { enabled = true },
-									jedi_completion = {
-										enabled = true,
-										fuzzy = true,
-									},
-									pyls_isort = { enabled = true },
-									rope_autoimport = { enabled = true },
-								},
-							},
-						},
-						flags = {
-							debounce_text_changes = 200,
+					pylsp = {},
+					ts_ls = {
+						filetypes = { --"javascript", "javascriptreact", "javascript.jsx", -- Don't enable on JavaScript files
+							"typescript",
+							"typescriptreact",
+							"typescript.tsx",
 						},
 					},
-					ts_ls = {},
 					lua_ls = {
 						settings = {
 							Lua = {
@@ -405,6 +390,7 @@ return {
 				-- Structure is identical to the mason table from above.
 				others = {
 					-- dartls = {},
+					flow = {},
 				},
 			}
 
@@ -428,6 +414,9 @@ return {
 				ensure_installed = {}, -- explicitly set to an empty table (Kickstart populates installs via mason-tool-installer)
 				-- automatic_enable = true -- set to false to disable this feature
 			})
+
+			-- HACK: Enable Flow LSP (not managed by Mason)
+			vim.lsp.enable("flow")
 		end,
 	},
 	{ -- Autoformat
@@ -634,6 +623,7 @@ return {
 			require("mini.surround").setup()
 			require("mini.comment").setup()
 			require("mini.trailspace").setup()
+			require("mini.git").setup()
 		end,
 	},
 	{
@@ -692,5 +682,11 @@ return {
 			damping_insert_mode = 0.95, -- 0.9      [0, 1]
 			distance_stop_animating = 0.5, -- 0.1      > 0
 		},
+	},
+	{
+		"norcalli/nvim-colorizer.lua",
+		config = function()
+			require("colorizer").setup()
+		end,
 	},
 }
