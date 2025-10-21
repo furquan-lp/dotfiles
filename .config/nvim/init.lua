@@ -63,18 +63,50 @@ vim.keymap.set("n", "<C-l>", "<C-w><C-l>", { desc = "Move focus to the right win
 vim.keymap.set("n", "<C-j>", "<C-w><C-j>", { desc = "Move focus to the lower window" })
 vim.keymap.set("n", "<C-k>", "<C-w><C-k>", { desc = "Move focus to the upper window" })
 
+local MiniFiles = require("mini.files")
+local map_split = function(buf_id, lhs, direction)
+	local rhs = function()
+		-- Make new window and set it as target
+		local cur_target = MiniFiles.get_explorer_state().target_window
+		local new_target = vim.api.nvim_win_call(cur_target, function()
+			vim.cmd(direction .. " split")
+			return vim.api.nvim_get_current_win()
+		end)
+
+		MiniFiles.set_target_window(new_target)
+		MiniFiles.go_in()
+	end
+
+	local desc = "Split " .. direction
+	vim.keymap.set("n", lhs, rhs, { buffer = buf_id, desc = desc })
+end
+vim.api.nvim_create_autocmd("User", {
+	pattern = "MiniFilesBufferCreate",
+	callback = function(args)
+		local buf_id = args.data.buf_id
+		-- Tweak keys to your liking
+		map_split(buf_id, "<C-s>", "belowright horizontal")
+		map_split(buf_id, "<C-v>", "belowright vertical")
+		map_split(buf_id, "<C-t>", "tab")
+	end,
+})
+
 -- custom functions --
+
+local work_machine = false
+if vim.fn.has("mac") == 1 then
+	work_machine = true
+end
 
 function SetDefaultTheme()
 	-- color scheme code
 	local hour = tonumber(os.date("%H"))
 	local dark_theme = "kanagawa-wave"
 	local light_theme = "gruvbox"
-	if vim.fn.has("mac") == 1 then
-		dark_theme = "nord"
-		light_theme = "nord"
-	end
-	if hour > 17 or hour <= 5 then
+	local work_theme = "nord"
+	if work_machine then
+		vim.cmd.colorscheme(work_theme)
+	elseif hour > 17 or hour <= 5 then
 		vim.cmd.colorscheme(dark_theme)
 	else
 		vim.cmd.colorscheme(light_theme)
@@ -97,6 +129,38 @@ vim.api.nvim_create_autocmd("BufReadPost", {
 			local last_pos = vim.fn.line([['"]])
 			if last_pos > 1 and last_pos <= vim.fn.line("$") then
 				vim.cmd([[normal! g`"]])
+			end
+		end
+	end,
+})
+
+-- Session Management
+
+vim.o.sessionoptions = "buffers,curdir,folds,help,tabpages,winsize,winpos,terminal,localoptions"
+
+-- Per-project session file: <project>/.nvim/session.vim
+local function session_file()
+	local cwd = vim.fn.getcwd()
+	local sdir = cwd .. "/.nvim"
+	vim.fn.mkdir(sdir, "p")
+	return sdir .. "/session.vim"
+end
+
+-- Save session when exiting (e.g., last :q, :qa, closing terminal)
+vim.api.nvim_create_autocmd("VimLeavePre", {
+	callback = function()
+		local f = session_file()
+		vim.cmd("silent! mksession! " .. vim.fn.fnameescape(f))
+	end,
+})
+
+-- Load session when starting in a project dir with no files specified
+vim.api.nvim_create_autocmd("VimEnter", {
+	callback = function()
+		if vim.fn.argc() == 0 then -- don't override if you opened specific files
+			local f = session_file()
+			if vim.fn.filereadable(f) == 1 then
+				vim.cmd("silent! source " .. vim.fn.fnameescape(f))
 			end
 		end
 	end,
@@ -128,19 +192,21 @@ local function sync_selection()
 	end
 end
 
-vim.api.nvim_create_autocmd("CursorMoved", {
-	desc = "Keep * register synced with visual selection (debounced)",
-	callback = function()
-		local mode = vim.fn.mode()
-		if mode == "v" or mode == "V" or mode == "\22" then
-			-- Cancel previous timer
-			if timer then
-				vim.fn.timer_stop(timer)
+if not work_machine then
+	vim.api.nvim_create_autocmd("CursorMoved", {
+		desc = "Keep * register synced with visual selection (debounced)",
+		callback = function()
+			local mode = vim.fn.mode()
+			if mode == "v" or mode == "V" or mode == "\22" then
+				-- Cancel previous timer
+				if timer then
+					vim.fn.timer_stop(timer)
+				end
+				-- Only sync after 200ms of no cursor movement
+				timer = vim.fn.timer_start(200, sync_selection)
 			end
-			-- Only sync after 200ms of no cursor movement
-			timer = vim.fn.timer_start(200, sync_selection)
-		end
-	end,
-})
+		end,
+	})
+end
 
 SetDefaultTheme()
