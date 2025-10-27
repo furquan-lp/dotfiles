@@ -98,6 +98,16 @@ return {
 					find_files = {
 						hidden = true,
 					},
+					buffers = {
+						mappings = {
+							i = {
+								["<c-d>"] = "delete_buffer", -- Delete buffer in insert mode
+							},
+							n = {
+								["dd"] = "delete_buffer", -- Delete buffer in normal mode
+							},
+						},
+					},
 				},
 				extensions = {
 					["ui-select"] = {
