@@ -42,8 +42,8 @@ vim.g.maplocalleader = ","
 -- Keymaps begin here
 
 -- Quickly switch buffers
-vim.keymap.set("n", "<S-TAB>", ":bprevious<CR>", { desc = "Previous buffer" })
-vim.keymap.set("n", "<TAB>", ":bnext<CR>", { desc = "Next buffer" })
+-- vim.keymap.set("n", "<S-TAB>", ":bprevious<CR>", { desc = "Previous buffer" })
+-- vim.keymap.set("n", "<TAB>", ":bnext<CR>", { desc = "Next buffer" })
 -- vim.keymap.set("n", "<leader>l", ":buffers<CR>") -- No need with Telescope
 
 vim.keymap.set("n", "<Esc>", "<cmd>nohlsearch<CR>")
@@ -94,6 +94,55 @@ vim.api.nvim_create_autocmd("User", {
 		map_split(buf_id, "<C-t>", "tab")
 	end,
 })
+
+local function show_buffers_one_line()
+	local cur = vim.api.nvim_get_current_buf()
+	local infos = vim.fn.getbufinfo({ buflisted = 1 })
+
+	local cur_idx
+	for i, b in ipairs(infos) do
+		if b.bufnr == cur then
+			cur_idx = i
+			break
+		end
+	end
+	if not cur_idx then
+		return
+	end
+
+	-- window range: 2 left, 2 right
+	local start_i = math.max(1, cur_idx - 2)
+	local end_i = math.min(#infos, cur_idx + 2)
+
+	-- nerd-font marker for current
+	local marker = ""
+
+	local parts = {}
+	for i = start_i, end_i do
+		local b = infos[i]
+		local name = (b.name ~= "" and vim.fn.fnamemodify(b.name, ":t")) or "[No Name]"
+
+		local fmt
+		if b.bufnr == cur then
+			-- show marker + buf number + name
+			fmt = string.format("%s%d:%s", marker, b.bufnr, name)
+		else
+			-- only name
+			fmt = name
+		end
+
+		table.insert(parts, fmt)
+	end
+	vim.api.nvim_echo({ { table.concat(parts, "  |  ") } }, false, {})
+end
+vim.keymap.set("n", "<TAB>", function()
+	vim.cmd.bnext()
+	show_buffers_one_line()
+end)
+vim.keymap.set("n", "<S-TAB>", function()
+	vim.cmd.bprevious()
+	show_buffers_one_line()
+end)
 
 -- custom functions --
 
