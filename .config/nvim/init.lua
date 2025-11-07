@@ -45,6 +45,7 @@ vim.g.maplocalleader = ","
 -- vim.keymap.set("n", "<S-TAB>", ":bprevious<CR>", { desc = "Previous buffer" })
 -- vim.keymap.set("n", "<TAB>", ":bnext<CR>", { desc = "Next buffer" })
 -- vim.keymap.set("n", "<leader>l", ":buffers<CR>") -- No need with Telescope
+vim.keymap.set("n", "<leader>bd", ":%bd|e#<CR>", { desc = "Close all other buffers" })
 
 vim.keymap.set("n", "<Esc>", "<cmd>nohlsearch<CR>")
 vim.keymap.set("t", "<Esc><Esc>", "<C-\\><C-n>", { desc = "Exit terminal mode" })
