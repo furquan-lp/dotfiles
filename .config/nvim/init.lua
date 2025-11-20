@@ -64,9 +64,15 @@ vim.keymap.set("n", "<C-l>", "<C-w><C-l>", { desc = "Move focus to the right win
 vim.keymap.set("n", "<C-j>", "<C-w><C-j>", { desc = "Move focus to the lower window" })
 vim.keymap.set("n", "<C-k>", "<C-w><C-k>", { desc = "Move focus to the upper window" })
 
+vim.keymap.set("n", "<leader>yp", function()
+	vim.fn.setreg("+", vim.fn.expand("%"))
+	print("Copied relative path: " .. vim.fn.expand("%"))
+end, { desc = 'Copy relative path to "+' })
+
 vim.keymap.set("n", "<leader>gb", function()
 	require("gitsigns").blame_line({ full = true })
 end, { desc = "Blame line (popup)" })
+vim.keymap.set("n", "<leader>gd", require("gitsigns").preview_hunk, { desc = "Preview git hunk" })
 
 local MiniFiles = require("mini.files")
 local map_split = function(buf_id, lhs, direction)
@@ -90,7 +96,7 @@ vim.api.nvim_create_autocmd("User", {
 	callback = function(args)
 		local buf_id = args.data.buf_id
 		-- Tweak keys to your liking
-		map_split(buf_id, "<C-s>", "belowright horizontal")
+		map_split(buf_id, "<C-x>", "belowright horizontal")
 		map_split(buf_id, "<C-v>", "belowright vertical")
 		map_split(buf_id, "<C-t>", "tab")
 	end,
@@ -136,14 +142,14 @@ local function show_buffers_one_line()
 	end
 	vim.api.nvim_echo({ { table.concat(parts, "  |  ") } }, false, {})
 end
-vim.keymap.set("n", "<TAB>", function()
+vim.keymap.set("n", "<leader><TAB>", function()
 	vim.cmd.bnext()
 	show_buffers_one_line()
-end)
+end, { desc = "Next buffer" })
 vim.keymap.set("n", "<S-TAB>", function()
 	vim.cmd.bprevious()
 	show_buffers_one_line()
-end)
+end, { desc = "Previous buffer" })
 
 -- custom functions --
 
