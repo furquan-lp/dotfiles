@@ -39,7 +39,7 @@ vim.opt.colorcolumn = { "81", "121" }
 vim.g.mapleader = ","
 vim.g.maplocalleader = ","
 
--- Keymaps begin here
+-- Keymaps --
 
 -- Quickly switch buffers
 -- vim.keymap.set("n", "<S-TAB>", ":bprevious<CR>", { desc = "Previous buffer" })
@@ -102,56 +102,21 @@ vim.api.nvim_create_autocmd("User", {
 	end,
 })
 
-local function show_buffers_one_line()
-	local cur = vim.api.nvim_get_current_buf()
-	local infos = vim.fn.getbufinfo({ buflisted = 1 })
-
-	local cur_idx
-	for i, b in ipairs(infos) do
-		if b.bufnr == cur then
-			cur_idx = i
-			break
-		end
-	end
-	if not cur_idx then
-		return
-	end
-
-	-- window range: 2 left, 2 right
-	local start_i = math.max(1, cur_idx - 2)
-	local end_i = math.min(#infos, cur_idx + 2)
-
-	-- nerd-font marker for current
-	local marker = ""
-
-	local parts = {}
-	for i = start_i, end_i do
-		local b = infos[i]
-		local name = (b.name ~= "" and vim.fn.fnamemodify(b.name, ":t")) or "[No Name]"
-
-		local fmt
-		if b.bufnr == cur then
-			-- show marker + buf number + name
-			fmt = string.format("%s%d:%s", marker, b.bufnr, name)
-		else
-			-- only name
-			fmt = name
-		end
-
-		table.insert(parts, fmt)
-	end
-	vim.api.nvim_echo({ { table.concat(parts, "  |  ") } }, false, {})
-end
+local buffers = require("bufferoneline")
 vim.keymap.set("n", "<leader><TAB>", function()
 	vim.cmd.bnext()
-	show_buffers_one_line()
+	buffers.show_buffers_one_line()
 end, { desc = "Next buffer" })
 vim.keymap.set("n", "<S-TAB>", function()
 	vim.cmd.bprevious()
-	show_buffers_one_line()
+	buffers.show_buffers_one_line()
 end, { desc = "Previous buffer" })
 
--- custom functions --
+local term = require("term")
+vim.keymap.set("n", "<leader>tv", term.toggle_vsplit, { silent = true, desc = "Toggle terminal (v-split)" })
+vim.keymap.set("n", "<leader>tf", term.toggle_float, { silent = true, desc = "Toggle terminal (float)" })
+
+-- Custom Functions --
 
 local work_machine = false
 if vim.fn.has("mac") == 1 then
@@ -194,7 +159,7 @@ vim.api.nvim_create_autocmd("BufReadPost", {
 	end,
 })
 
--- Session Management
+-- Session Management --
 
 vim.o.sessionoptions = "buffers,curdir,folds,help,tabpages,winsize,winpos,terminal,localoptions"
 
