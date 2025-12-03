@@ -145,6 +145,26 @@ return {
 			vim.keymap.set("n", "<leader>sn", function()
 				builtin.find_files({ cwd = vim.fn.stdpath("config") })
 			end, { desc = "[S]earch [N]eovim files" })
+
+			-- Prompt for a directory, then live_grep inside it
+			vim.keymap.set("n", "<leader>sp", function()
+				local dir = vim.fn.input("Grep in directory: ", "", "dir")
+				if dir == nil then
+					return
+				end
+
+				if dir == "" or dir == "%" then
+					-- directory of current file
+					dir = vim.fn.expand("%:p:h")
+				end
+
+				local display_dir = vim.fn.fnamemodify(dir, ":.")
+				builtin.live_grep({
+					cwd = dir,
+					prompt_title = "Live Grep in " .. display_dir,
+					results_title = "Results: " .. display_dir,
+				})
+			end, { desc = "[S]earch in [P]ath (live_grep cwd)" })
 		end,
 	},
 	{
