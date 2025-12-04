@@ -24,13 +24,21 @@ A lot of stuff is WIP.
 
 | Keymap | Mode(s) | Description |
 | --- | --- | --- |
-| `<S-TAB>` | Normal | Go to the previous buffer. |
-| `<TAB>` | Normal | Go to the next buffer. |
+| `<leader><TAB>` | Normal | Go to the next buffer and show the buffer list on one line. |
+| `<S-TAB>` | Normal | Go to the previous buffer and show the buffer list on one line. |
+| `<leader>bd` | Normal | Close all other buffers, keeping only the current one. |
 | `<leader>E` | Normal | Toggle the `mini.files` file explorer. |
-| `<leader><leader>` | Normal | [Telescope] Find existing buffers. |
-| `<leader>sf` | Normal | [Telescope] Search files. |
-| `<leader>s.` | Normal | [Telescope] Search recent files. |
-| `<leader>sn` | Normal | [Telescope] Search Neovim config files. |
+| `<leader>yp` | Normal | Copy the current file's **relative path** to the system clipboard. |
+
+---
+
+### **Terminal**
+
+| Keymap | Mode(s) | Description |
+| --- | --- | --- |
+| `<Esc><Esc>` | Terminal | Exit terminal mode and return to Normal mode. |
+| `<leader>tv` | Normal | Toggle a terminal in a vertical split. |
+| `<leader>tf` | Normal | Toggle a terminal in a centered floating window. |
 
 ---
 
@@ -42,19 +50,22 @@ A lot of stuff is WIP.
 | `<leader>sg` | Normal | **S**earch by **G**rep (live grep) in your project. |
 | `<leader>sw` | Normal | **S**earch for the current **W**ord under the cursor. |
 | `<leader>s/` | Normal | **S**earch by Grep in currently open files. |
+| `<leader>sp` | Normal | **S**earch in a chosen **P**ath (live grep in a specified directory). |
 | `<leader>/` | Normal | Fuzzily search within the current buffer. |
 | `<leader>sh` | Normal | **S**earch **H**elp tags. |
 | `<leader>sk` | Normal | **S**earch **K**eymaps. |
 | `<leader>sd` | Normal | **S**earch **D**iagnostics (LSP errors, warnings). |
 | `<leader>ss` | Normal | **S**earch **S**elect a Telescope picker. |
 | `<leader>sr` | Normal | **S**earch **R**esume last Telescope search. |
+| `<leader>s.` | Normal | **S**earch **R**ecent files (oldfiles). |
+| `<leader>sn` | Normal | **S**earch **N**eovim config files. |
 | `<leader><leader>` | Normal | Find existing buffers. |
 
 ---
 
 ### **Editing & Text Objects**
 
-These actions come from `mini.nvim` and `nvim-treesitter`.
+These actions come from `mini.nvim`.
 
 | Keymap | Mode(s) | Description |
 | --- | --- | --- |
@@ -65,9 +76,6 @@ These actions come from `mini.nvim` and `nvim-treesitter`.
 | `sa<char>` | Normal / Visual | **A**dd **s**urrounding `<char>` (e.g., `saw"` adds quotes around a word). |
 | `sd<char>` | Normal | **D**elete **s**urrounding `<char>` (e.g., `sd"` deletes surrounding quotes). |
 | `sr<from><to>` | Normal | **R**eplace **s**urrounding `<from>` char with `<to>` char (e.g., `sr'"` replaces single quotes with double). |
-| **Treesitter Incremental Selection** |
-| `<CR>` | Normal | Initialize selection of the current node. |
-| `grn` | Normal / Visual | Increment selection to the parent node. |
 
 ---
 
@@ -86,7 +94,6 @@ These keymaps are available when an LSP server is attached to a buffer. The `g` 
 | `grt` | Normal | Go to **T**ype **D**efinition (via Telescope). |
 | `gO` | Normal | Show d**O**cument symbols (via Telescope). |
 | `gW` | Normal | Show **W**orkspace symbols (via Telescope). |
-| `<leader>th` | Normal | **T**oggle inlay **H**ints. |
 
 ---
 
@@ -134,6 +141,8 @@ Gitsigns doesn't have many default keymaps, but it provides powerful commands an
 | --- | --- | --- |
 | `]c` | Normal | Go to the next hunk (change). |
 | `[c` | Normal | Go to the previous hunk. |
+| `<leader>gb` | Normal | Show a detailed git blame popup for the current line. |
+| `<leader>gd` | Normal | Preview the current git hunk in a floating window. |
 | `:Gitsigns toggle_current_line_blame` | Command | Toggle the git blame annotation for the current line. |
 
 ---
@@ -143,5 +152,10 @@ Gitsigns doesn't have many default keymaps, but it provides powerful commands an
 *   **guess-indent.nvim**: Automatically detects and sets indentation settings per file.
 *   **mini.indentscope**: Provides visual guides for indentation levels.
 *   **mini.trailspace**: Automatically highlights and removes trailing whitespace.
+*   **mini.statusline**: Provides a lightweight, informative statusline (with `LINE:COLUMN` location).
+*   **mini.clue**: Shows helpful keybinding hints for common prefixes like `<leader>`, `g`, `z`, etc.
+*   **mini.git**: Lightweight git integration (signs and commands) complementing `gitsigns.nvim`.
 *   **hardtime.nvim**: Encourages you to use more efficient movement keys.
-*   **smear-cursor.nvim**: Adds a smooth, "smearing" animation to your cursor movement.-cursor.nvim**: Adds a smooth, "smearing" animation to your cursor movement.
+*   **smear-cursor.nvim**: Adds a smooth, "smearing" animation to your cursor movement.
+*   **nvim-treesitter-context**: Shows the current code context (e.g., function/class) at the top of the window.
+*   **nvim-colorizer.lua**: Highlights color codes (like hex / rgb) with their actual colors in the buffer.
