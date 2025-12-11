@@ -35,9 +35,16 @@ vim.opt.termguicolors = true
 vim.opt.colorcolumn = { "81", "121" }
 -- Highlight ColorColumn (Don't use, set by the colorscheme)
 -- vim.api.nvim_set_hl(0, "ColorColumn", { ctermbg = 0, bg = "#2E3440" })
-
 vim.g.mapleader = ","
 vim.g.maplocalleader = ","
+
+require("config.lazy")
+
+-- Treesitter-based code folding
+vim.opt.foldmethod = "expr"
+vim.opt.foldexpr = "v:lua.vim.treesitter.foldexpr()"
+vim.opt.foldenable = true
+vim.opt.foldlevel = 99
 
 -- Keymaps --
 
@@ -49,8 +56,6 @@ vim.keymap.set("n", "<leader>bd", ":%bd|e#|bd#<CR>", { desc = "Close all other b
 
 vim.keymap.set("n", "<Esc>", "<cmd>nohlsearch<CR>")
 vim.keymap.set("t", "<Esc><Esc>", "<C-\\><C-n>", { desc = "Exit terminal mode" })
-
-require("config.lazy")
 
 -- Diagnostic keymaps
 vim.keymap.set("n", "[d", vim.diagnostic.goto_prev, { desc = "Go to previous [D]iagnostic message" })
