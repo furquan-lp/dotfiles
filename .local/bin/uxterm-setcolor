@@ -1,27 +1,71 @@
 #!/bin/bash
+set -euo pipefail
 
-case "$1" in ''|*[!0-9]*)
-    echo "Error: date +%H \"$1\" is not a number" && exit ;;
+case "$1" in '' | *[!0-9]*)
+  echo "Error: date +%H \"$1\" is not a number" && exit 1
+  ;;
 esac
 
-if [ -f /tmp/.colormode* ]; then
-    rm /tmp/.colormode*
-fi
+TTY="$(tty)"
+exec >"$TTY"
 
+# Helper: if inside tmux, wrap sequences so they pass through to the outer terminal.
+emit() {
+  local seq="$1"
+  if [[ -n "${TMUX:-}" ]]; then
+    printf '\033Ptmux;\033%s\033\\' "$seq"
+  else
+    printf '%s' "$seq"
+  fi
+}
+
+# Read a resource from xrdb output (tries UXTerm* then */.* as fallback)
+xr() {
+  local key="$1"
+  xrdb -query | awk -v k1="UXTerm*${key}:" -v k2="*${key}:" -v k3="*.${key}:" '
+    $1 == k1 { print $2; found=1; exit }
+    $1 == k2 { print $2; found=1; exit }
+    $1 == k3 { print $2; found=1; exit }
+    END { exit(found ? 0 : 1) }
+   '
+}
+
+# Emit OSC sequences to change the colors 'live'
+apply_from_xrdb() {
+  # 16-color ANSI palette
+  for i in $(seq 0 15); do
+    local c
+    c="$(xr "color${i}")" || continue
+    emit "$(printf '\033]4;%d;%s\007' "$i" "$c")"
+  done
+
+  # Default fg/bg/cursor if present
+  if fg="$(xr foreground 2>/dev/null)"; then
+    emit "$(printf '\033]10;%s\007' "$fg")"
+  fi
+  if bg="$(xr background 2>/dev/null)"; then
+    emit "$(printf '\033]11;%s\007' "$bg")"
+  fi
+  if cc="$(xr cursorColor 2>/dev/null)"; then
+    emit "$(printf '\033]12;%s\007' "$cc")"
+  fi
+}
+
+rm -f /tmp/.colormode_ran_dark /tmp/.colormode_ran_light 2>/dev/null || true
+
+# Base config
 xrdb ~/.Xresources
+
 if [ "$1" -gt 17 ] || [ "$1" -lt 6 ]; then
-    tmux source ~/.config/tmux/tmux.conf
-    xrdb -merge ~/.config/X11/Xresources.kanagawa
-    touch /tmp/.colormode_ran_dark
+  tmux source-file ~/.config/tmux/tmux.conf 2>/dev/null || true
+  xrdb -merge ~/.config/X11/Xresources.kanagawa
+  apply_from_xrdb
+  touch /tmp/.colormode_ran_dark
 else
-    tmux source ~/.config/tmux/tmux.light.conf
-    xrdb -merge ~/.config/X11/Xresources.light
-    touch /tmp/.colormode_ran_light
+  tmux source-file ~/.config/tmux/tmux.light.conf 2>/dev/null || true
+  xrdb -merge ~/.config/X11/Xresources.light
+  apply_from_xrdb
+  touch /tmp/.colormode_ran_light
 fi
 gsettings set org.cinnamon.desktop.interface text-scaling-factor 1.2
 gsettings set org.cinnamon.desktop.interface text-scaling-factor 1.1
-sleep 1s
-#tmux detach -s $(tmux display-message -p '#S')
-uxterm &
-sleep 1s
-exit
