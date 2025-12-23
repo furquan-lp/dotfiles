@@ -478,6 +478,7 @@ return {
 				typescript = { "prettier" },
 				typescriptreact = { "prettier" },
 				javascriptreact = { "prettier" },
+				sh = { "shfmt" },
 			},
 		},
 	},
