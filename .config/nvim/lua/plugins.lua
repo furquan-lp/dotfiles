@@ -213,6 +213,20 @@ return {
 					--  To jump back, press <C-t>.
 					map("grd", require("telescope.builtin").lsp_definitions, "[G]oto [D]efinition")
 
+					-- Goto definition in a vertical split
+					map("grv", function()
+						require("telescope.builtin").lsp_definitions({
+							jump_type = "vsplit", -- open in a vertical split
+						})
+					end, "[G]oto Definition (Vsplit)")
+
+					-- Goto definition in a horizontal split
+					map("grx", function()
+						require("telescope.builtin").lsp_definitions({
+							jump_type = "split", -- open in a vertical split
+						})
+					end, "[G]oto Definition (Split)")
+
 					-- WARN: This is not Goto Definition, this is Goto Declaration.
 					--  For example, in C this would take you to the header.
 					map("grD", vim.lsp.buf.declaration, "[G]oto [D]eclaration")
