@@ -169,26 +169,29 @@ vim.api.nvim_create_autocmd("BufReadPost", {
 vim.o.sessionoptions = "buffers,curdir,folds,help,tabpages,winsize,winpos,terminal,localoptions"
 
 -- Per-project session file: <project>/.nvim/session.vim
-local function session_file()
-	local cwd = vim.fn.getcwd()
-	local sdir = cwd .. "/.nvim"
-	vim.fn.mkdir(sdir, "p")
-	return sdir .. "/session.vim"
+local function session_file_path(cwd)
+	return vim.fs.joinpath(cwd, ".nvim", "session.vim")
+end
+local function ensure_session_dir(cwd)
+	vim.fn.mkdir(vim.fs.joinpath(cwd, ".nvim"), "p")
 end
 
 -- Save session when exiting (e.g., last :q, :qa, closing terminal)
 vim.api.nvim_create_autocmd("VimLeavePre", {
 	callback = function()
-		local f = session_file()
-		vim.cmd("silent! mksession! " .. vim.fn.fnameescape(f))
+		local cwd = vim.fn.getcwd()
+		if cwd ~= vim.env.HOME and vim.bo.filetype ~= "gitcommit" then
+			ensure_session_dir(cwd)
+			local f = session_file_path(cwd)
+			vim.cmd("silent! mksession! " .. vim.fn.fnameescape(f))
+		end
 	end,
 })
-
 -- Load session when starting in a project dir with no files specified
 vim.api.nvim_create_autocmd("VimEnter", {
 	callback = function()
 		if vim.fn.argc() == 0 then -- don't override if you opened specific files
-			local f = session_file()
+			local f = session_file_path(vim.fn.getcwd())
 			if vim.fn.filereadable(f) == 1 then
 				vim.cmd("silent! source " .. vim.fn.fnameescape(f))
 			end
