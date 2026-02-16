@@ -424,7 +424,9 @@ return {
 				-- Structure is identical to the mason table from above.
 				others = {
 					-- dartls = {},
-					flow = {},
+					flow = {
+						cmd = { "npx", "--no-install", "flow", "lsp" },
+					},
 				},
 			}
 
