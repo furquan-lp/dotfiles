@@ -701,6 +701,16 @@ return {
 		opts = {
 			multiline_threshold = 1,
 		},
+		config = function(_, opts)
+			local tsc = require("treesitter-context")
+			tsc.setup(opts)
+			local full_context = false
+			vim.keymap.set("n", "<leader>c", function()
+				full_context = not full_context
+				tsc.setup({ multiline_threshold = full_context and 18 or 1 })
+				vim.notify("Treesitter context: " .. (full_context and "full" or "compact"))
+			end, { desc = "[C]ontext toggle full/multiline" })
+		end,
 	},
 	{
 		"m4xshen/hardtime.nvim",

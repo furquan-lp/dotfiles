@@ -17,6 +17,7 @@ A lot of stuff is WIP.
 | `<C-l>` | Normal | Move focus to the right window. |
 | `<C-j>` | Normal | Move focus to the lower window. |
 | `<C-k>` | Normal | Move focus to the upper window. |
+| `<leader>c` | Normal | Toggle treesitter context between compact (one line per scope) and full multiline. |
 
 ---
 
@@ -157,5 +158,5 @@ Gitsigns doesn't have many default keymaps, but it provides powerful commands an
 *   **mini.git**: Lightweight git integration (signs and commands) complementing `gitsigns.nvim`.
 *   **hardtime.nvim**: Encourages you to use more efficient movement keys.
 *   **smear-cursor.nvim**: Adds a smooth, "smearing" animation to your cursor movement.
-*   **nvim-treesitter-context**: Shows the current code context (e.g., function/class) at the top of the window.
+*   **nvim-treesitter-context**: Shows the current code context (e.g., function/class) at the top of the window. Defaults to one line per scope level; use `<leader>c` to toggle full multiline context.
 *   **nvim-colorizer.lua**: Highlights color codes (like hex / rgb) with their actual colors in the buffer.
