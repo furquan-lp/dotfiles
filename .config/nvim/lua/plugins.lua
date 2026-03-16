@@ -696,7 +696,12 @@ return {
 			indent = { enable = true, disable = { "ruby" } },
 		},
 	},
-	"nvim-treesitter/nvim-treesitter-context",
+	{
+		"nvim-treesitter/nvim-treesitter-context",
+		opts = {
+			multiline_threshold = 1,
+		},
+	},
 	{
 		"m4xshen/hardtime.nvim",
 		lazy = false,
