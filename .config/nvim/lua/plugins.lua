@@ -1,6 +1,9 @@
+local full_profile = not vim.g.minimal_profile
+
 return {
 	{
 		"NMAC427/guess-indent.nvim",
+		enabled = full_profile,
 
 		config = function()
 			require("guess-indent").setup({})
@@ -10,6 +13,7 @@ return {
 	{
 		-- Adds git related signs to the gutter, as well as utilities for managing changes
 		"lewis6991/gitsigns.nvim",
+		enabled = full_profile,
 		opts = {
 			signs = {
 				add = { text = "+" },
@@ -37,6 +41,7 @@ return {
 		-- `lazydev` configures Lua LSP for your Neovim config, runtime and plugins
 		-- used for completion, annotations and signatures of Neovim apis
 		"folke/lazydev.nvim",
+		enabled = full_profile,
 		ft = "lua",
 		opts = {
 			library = {
@@ -47,6 +52,7 @@ return {
 	},
 	{
 		"nvim-telescope/telescope.nvim",
+		enabled = full_profile,
 		event = "VimEnter",
 		cmd = "Telescope",
 		dependencies = {
@@ -169,6 +175,7 @@ return {
 	},
 	{
 		"neovim/nvim-lspconfig",
+		enabled = full_profile,
 		dependencies = {
 			-- Automatically install LSPs and related tools to stdpath for Neovim
 			-- Mason must be loaded before its dependents so we need to set it up here.
@@ -457,6 +464,7 @@ return {
 	},
 	{ -- Autoformat
 		"stevearc/conform.nvim",
+		enabled = full_profile,
 		event = { "BufWritePre" },
 		cmd = { "ConformInfo" },
 		keys = {
@@ -500,6 +508,7 @@ return {
 	},
 	{ -- Autocompletion
 		"saghen/blink.cmp",
+		enabled = full_profile,
 		event = "VimEnter",
 		version = "1.*",
 		dependencies = {
@@ -586,6 +595,7 @@ return {
 	},
 	{
 		"echasnovski/mini.nvim",
+		enabled = full_profile,
 		config = function()
 			local minifiles = require("mini.files")
 			minifiles.setup()
@@ -665,6 +675,7 @@ return {
 	},
 	{
 		"nvim-treesitter/nvim-treesitter",
+		enabled = full_profile,
 		build = ":TSUpdate",
 		main = "nvim-treesitter.configs",
 		-- [[ Configure Treesitter ]] See `:help nvim-treesitter`
@@ -698,6 +709,7 @@ return {
 	},
 	{
 		"nvim-treesitter/nvim-treesitter-context",
+		enabled = full_profile,
 		opts = {
 			multiline_threshold = 1,
 		},
@@ -714,17 +726,19 @@ return {
 	},
 	{
 		"m4xshen/hardtime.nvim",
+		enabled = full_profile,
 		lazy = false,
 		dependencies = { "MunifTanjim/nui.nvim" },
 		opts = {
 			disable_mouse = false,
 		},
 	},
-	"rebelot/kanagawa.nvim",
-	{ "ellisonleao/gruvbox.nvim", priority = 1000, config = true, opts = {} },
-	"shaunsingh/nord.nvim",
+	{ "rebelot/kanagawa.nvim", enabled = full_profile },
+	{ "ellisonleao/gruvbox.nvim", enabled = full_profile, priority = 1000, config = true, opts = {} },
+	{ "shaunsingh/nord.nvim", enabled = full_profile },
 	{
 		"sphamba/smear-cursor.nvim",
+		enabled = full_profile,
 		opts = {
 			stiffness = 0.8, -- 0.6      [0, 1]
 			trailing_stiffness = 0.6, -- 0.45     [0, 1]
@@ -737,6 +751,7 @@ return {
 	},
 	{
 		"norcalli/nvim-colorizer.lua",
+		enabled = full_profile,
 		config = function()
 			require("colorizer").setup()
 		end,

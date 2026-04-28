@@ -1,0 +1,2 @@
+[core]
+	editor = env NVIM_MINIMAL=1 nvim

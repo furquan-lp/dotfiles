@@ -127,6 +127,8 @@ alias xt80x43="resize_current_window 804,860"
 alias xt80x24="resize_current_window 804,504"
 ##alias gitls-m='git diff --name-only origin/$(git branch --show-current)'
 alias tmuxt2='tmux -L syed-f2 -f ~/.config/tmux/tmux.2.conf'
+alias nvim-min='NVIM_MINIMAL=1 nvim'
+alias svim='EDITOR="env NVIM_MINIMAL=1 $HOME/.local/bin/nvim" sudoedit'
 ##alias yarn='yarn --use-yarnrc ~/.config/yarn/config'
 
 #export VIMINIT='let $MYVIMRC="~/.config/vim/vimrc" | source $MYVIMRC'

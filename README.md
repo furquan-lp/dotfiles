@@ -6,6 +6,27 @@ A lot of stuff is WIP.
 
 **Leader Key:** `,`
 
+### Profiles
+
+The default `nvim` command loads the full editing profile with plugins, LSP, Telescope, completion, formatting, git signs, and UI helpers.
+
+Use the minimal profile when you want a calmer editor with the shared core settings but without plugin-backed features:
+
+```sh
+NVIM_MINIMAL=1 nvim
+nvim-min
+svim /etc/some-file
+```
+
+`svim` uses `sudoedit` with `$HOME/.local/bin/nvim`, so Neovim runs as your user while `sudoedit` writes the file back with elevated permissions.
+
+Git is configured to use the same minimal profile for commit messages:
+
+```ini
+[core]
+	editor = env NVIM_MINIMAL=1 nvim
+```
+
 ---
 
 ### **General & Editor**
@@ -17,7 +38,7 @@ A lot of stuff is WIP.
 | `<C-l>` | Normal | Move focus to the right window. |
 | `<C-j>` | Normal | Move focus to the lower window. |
 | `<C-k>` | Normal | Move focus to the upper window. |
-| `<leader>c` | Normal | Toggle treesitter context between compact (one line per scope) and full multiline. |
+| `<leader>c` | Normal | Full profile: toggle treesitter context between compact (one line per scope) and full multiline. |
 
 ---
 
@@ -25,10 +46,10 @@ A lot of stuff is WIP.
 
 | Keymap | Mode(s) | Description |
 | --- | --- | --- |
-| `<leader><TAB>` | Normal | Go to the next buffer and show the buffer list on one line. |
-| `<S-TAB>` | Normal | Go to the previous buffer and show the buffer list on one line. |
+| `<leader><TAB>` | Normal | Full profile: go to the next buffer and show the buffer list on one line. |
+| `<S-TAB>` | Normal | Full profile: go to the previous buffer and show the buffer list on one line. |
 | `<leader>bd` | Normal | Close all other buffers, keeping only the current one. |
-| `<leader>E` | Normal | Toggle the `mini.files` file explorer. |
+| `<leader>E` | Normal | Full profile: toggle the `mini.files` file explorer. |
 | `<leader>yp` | Normal | Copy the current file's **relative path** to the system clipboard. |
 
 ---
@@ -38,12 +59,12 @@ A lot of stuff is WIP.
 | Keymap | Mode(s) | Description |
 | --- | --- | --- |
 | `<Esc><Esc>` | Terminal | Exit terminal mode and return to Normal mode. |
-| `<leader>tv` | Normal | Toggle a terminal in a vertical split. |
-| `<leader>tf` | Normal | Toggle a terminal in a centered floating window. |
+| `<leader>tv` | Normal | Full profile: toggle a terminal in a vertical split. |
+| `<leader>tf` | Normal | Full profile: toggle a terminal in a centered floating window. |
 
 ---
 
-### **Search (Telescope)**
+### **Search (Telescope, Full Profile)**
 
 | Keymap | Mode(s) | Description |
 | --- | --- | --- |
@@ -64,7 +85,7 @@ A lot of stuff is WIP.
 
 ---
 
-### **Editing & Text Objects**
+### **Editing & Text Objects (Full Profile)**
 
 These actions come from `mini.nvim`.
 
@@ -80,7 +101,7 @@ These actions come from `mini.nvim`.
 
 ---
 
-### **LSP (Language Server Protocol)**
+### **LSP (Language Server Protocol, Full Profile)**
 
 These keymaps are available when an LSP server is attached to a buffer. The `g` prefix is for "goto", and `gr` is a common convention.
 
@@ -106,11 +127,11 @@ These keymaps are available when an LSP server is attached to a buffer. The `g` 
 | `]d` | Normal | Go to the next diagnostic message. |
 | `<leader>e` | Normal | Show diagnostic **E**rror messages in a floating window. |
 | `<leader>q` | Normal | Open diagnostic **Q**uickfix list. |
-| `<leader>sd` | Normal | [Telescope] **S**earch **D**iagnostics. |
+| `<leader>sd` | Normal | Full profile: [Telescope] **S**earch **D**iagnostics. |
 
 ---
 
-### **Autocompletion (`blink.cmp` with super-tab preset)**
+### **Autocompletion (`blink.cmp` with super-tab preset, Full Profile)**
 
 These keymaps are active in **Insert Mode** when the completion menu is visible.
 
@@ -126,7 +147,7 @@ These keymaps are active in **Insert Mode** when the completion menu is visible.
 
 ---
 
-### **Formatting (`conform.nvim`)**
+### **Formatting (`conform.nvim`, Full Profile)**
 
 | Keymap | Mode(s) | Description |
 | --- | --- | --- |
@@ -134,7 +155,7 @@ These keymaps are active in **Insert Mode** when the completion menu is visible.
 
 ---
 
-### **Git (`gitsigns.nvim`)**
+### **Git (`gitsigns.nvim`, Full Profile)**
 
 Gitsigns doesn't have many default keymaps, but it provides powerful commands and hunks navigation.
 
@@ -148,7 +169,7 @@ Gitsigns doesn't have many default keymaps, but it provides powerful commands an
 
 ---
 
-### **Plugin-Provided Features (No Keymaps)**
+### **Plugin-Provided Features (No Keymaps, Full Profile)**
 
 *   **guess-indent.nvim**: Automatically detects and sets indentation settings per file.
 *   **mini.indentscope**: Provides visual guides for indentation levels.

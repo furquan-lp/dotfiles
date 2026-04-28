@@ -1,5 +1,7 @@
 -- Config begins here --
 
+vim.g.minimal_profile = vim.env.NVIM_MINIMAL == "1"
+
 -- Tab and indentation settings
 vim.opt.tabstop = 4
 vim.opt.shiftwidth = 4
@@ -41,10 +43,12 @@ vim.g.maplocalleader = ","
 require("config.lazy")
 
 -- Treesitter-based code folding
-vim.opt.foldmethod = "expr"
-vim.opt.foldexpr = "v:lua.vim.treesitter.foldexpr()"
-vim.opt.foldenable = true
-vim.opt.foldlevel = 99
+if not vim.g.minimal_profile then
+	vim.opt.foldmethod = "expr"
+	vim.opt.foldexpr = "v:lua.vim.treesitter.foldexpr()"
+	vim.opt.foldenable = true
+	vim.opt.foldlevel = 99
+end
 
 -- Keymaps --
 
@@ -75,52 +79,54 @@ vim.keymap.set("n", "<leader>yp", function()
 	print("Copied relative path: " .. path)
 end, { desc = 'Copy relative path to "+' })
 
-vim.keymap.set("n", "<leader>gb", function()
-	require("gitsigns").blame_line({ full = true })
-end, { desc = "Blame line (popup)" })
-vim.keymap.set("n", "<leader>gd", require("gitsigns").preview_hunk, { desc = "Preview git hunk" })
+if not vim.g.minimal_profile then
+	vim.keymap.set("n", "<leader>gb", function()
+		require("gitsigns").blame_line({ full = true })
+	end, { desc = "Blame line (popup)" })
+	vim.keymap.set("n", "<leader>gd", require("gitsigns").preview_hunk, { desc = "Preview git hunk" })
 
-local MiniFiles = require("mini.files")
-local map_split = function(buf_id, lhs, direction)
-	local rhs = function()
-		-- Make new window and set it as target
-		local cur_target = MiniFiles.get_explorer_state().target_window
-		local new_target = vim.api.nvim_win_call(cur_target, function()
-			vim.cmd(direction .. " split")
-			return vim.api.nvim_get_current_win()
-		end)
+	local MiniFiles = require("mini.files")
+	local map_split = function(buf_id, lhs, direction)
+		local rhs = function()
+			-- Make new window and set it as target
+			local cur_target = MiniFiles.get_explorer_state().target_window
+			local new_target = vim.api.nvim_win_call(cur_target, function()
+				vim.cmd(direction .. " split")
+				return vim.api.nvim_get_current_win()
+			end)
 
-		MiniFiles.set_target_window(new_target)
-		MiniFiles.go_in()
+			MiniFiles.set_target_window(new_target)
+			MiniFiles.go_in()
+		end
+
+		local desc = "Split " .. direction
+		vim.keymap.set("n", lhs, rhs, { buffer = buf_id, desc = desc })
 	end
+	vim.api.nvim_create_autocmd("User", {
+		pattern = "MiniFilesBufferCreate",
+		callback = function(args)
+			local buf_id = args.data.buf_id
+			-- Tweak keys to your liking
+			map_split(buf_id, "<C-x>", "belowright horizontal")
+			map_split(buf_id, "<C-v>", "belowright vertical")
+			map_split(buf_id, "<C-t>", "tab")
+		end,
+	})
 
-	local desc = "Split " .. direction
-	vim.keymap.set("n", lhs, rhs, { buffer = buf_id, desc = desc })
+	local buffers = require("bufferoneline")
+	vim.keymap.set("n", "<leader><TAB>", function()
+		vim.cmd.bnext()
+		buffers.show_buffers_one_line()
+	end, { desc = "Next buffer" })
+	vim.keymap.set("n", "<S-TAB>", function()
+		vim.cmd.bprevious()
+		buffers.show_buffers_one_line()
+	end, { desc = "Previous buffer" })
+
+	local term = require("term")
+	vim.keymap.set("n", "<leader>tv", term.toggle_vsplit, { silent = true, desc = "Toggle terminal (v-split)" })
+	vim.keymap.set("n", "<leader>tf", term.toggle_float, { silent = true, desc = "Toggle terminal (float)" })
 end
-vim.api.nvim_create_autocmd("User", {
-	pattern = "MiniFilesBufferCreate",
-	callback = function(args)
-		local buf_id = args.data.buf_id
-		-- Tweak keys to your liking
-		map_split(buf_id, "<C-x>", "belowright horizontal")
-		map_split(buf_id, "<C-v>", "belowright vertical")
-		map_split(buf_id, "<C-t>", "tab")
-	end,
-})
-
-local buffers = require("bufferoneline")
-vim.keymap.set("n", "<leader><TAB>", function()
-	vim.cmd.bnext()
-	buffers.show_buffers_one_line()
-end, { desc = "Next buffer" })
-vim.keymap.set("n", "<S-TAB>", function()
-	vim.cmd.bprevious()
-	buffers.show_buffers_one_line()
-end, { desc = "Previous buffer" })
-
-local term = require("term")
-vim.keymap.set("n", "<leader>tv", term.toggle_vsplit, { silent = true, desc = "Toggle terminal (v-split)" })
-vim.keymap.set("n", "<leader>tf", term.toggle_float, { silent = true, desc = "Toggle terminal (float)" })
 
 -- Custom Functions --
 
@@ -130,6 +136,11 @@ if vim.fn.has("mac") == 1 then
 end
 
 function SetDefaultTheme()
+	if vim.g.minimal_profile then
+		vim.cmd.colorscheme("default")
+		return
+	end
+
 	-- color scheme code
 	local hour = tonumber(os.date("%H"))
 	local dark_theme = "kanagawa-wave"
