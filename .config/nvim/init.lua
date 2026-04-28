@@ -70,8 +70,9 @@ vim.keymap.set("n", "<C-j>", "<C-w><C-j>", { desc = "Move focus to the lower win
 vim.keymap.set("n", "<C-k>", "<C-w><C-k>", { desc = "Move focus to the upper window" })
 
 vim.keymap.set("n", "<leader>yp", function()
-	vim.fn.setreg("+", vim.fn.expand("%"))
-	print("Copied relative path: " .. vim.fn.expand("%"))
+	local path = vim.fn.expand("%:.")
+	vim.fn.setreg("+", path)
+	print("Copied relative path: " .. path)
 end, { desc = 'Copy relative path to "+' })
 
 vim.keymap.set("n", "<leader>gb", function()

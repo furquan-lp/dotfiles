@@ -479,7 +479,7 @@ return {
 					return
 				else
 					return {
-						timeout_ms = 500,
+						timeout_ms = 1000,
 						lsp_format = "fallback",
 					}
 				end
@@ -491,9 +491,9 @@ return {
 				--
 				-- You can use 'stop_after_first' to run the first available formatter from the list
 				javascript = { "prettierd", "prettier", stop_after_first = true },
-				typescript = { "prettier" },
-				typescriptreact = { "prettier" },
-				javascriptreact = { "prettier" },
+				typescript = { "prettierd" },
+				typescriptreact = { "prettierd" },
+				javascriptreact = { "prettierd" },
 				sh = { "shfmt" },
 			},
 		},
