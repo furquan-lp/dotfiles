@@ -8,9 +8,9 @@ A lot of stuff is WIP.
 
 ### Profiles
 
-The default `nvim` command loads the full editing profile with plugins, LSP, Telescope, completion, formatting, git signs, and UI helpers.
+The default `nvim` command loads the full editing profile with plugins, LSP, Telescope, completion, formatting, git signs, UI helpers, and per-project sessions.
 
-Use the minimal profile when you want a calmer editor with the shared core settings but without plugin-backed features:
+Use the minimal profile when you want a calmer editor with the shared core settings but without plugin-backed features, Lazy startup, or per-project session save/restore:
 
 ```sh
 NVIM_MINIMAL=1 nvim
