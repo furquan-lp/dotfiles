@@ -57,7 +57,6 @@ end
 -- Quickly switch buffers
 -- vim.keymap.set("n", "<S-TAB>", ":bprevious<CR>", { desc = "Previous buffer" })
 -- vim.keymap.set("n", "<TAB>", ":bnext<CR>", { desc = "Next buffer" })
--- vim.keymap.set("n", "<leader>l", ":buffers<CR>") -- No need with Telescope
 vim.keymap.set("n", "<leader>bd", ":%bd|e#|bd#<CR>", { desc = "Close all other buffers" })
 
 vim.keymap.set("n", "<Esc>", "<cmd>nohlsearch<CR>")
@@ -116,6 +115,7 @@ if not vim.g.minimal_profile then
 	})
 
 	local buffers = require("bufferpreview")
+	buffers.setup_last_buffer_tracking()
 	vim.keymap.set("n", "<leader><TAB>", function()
 		vim.cmd.bnext()
 		buffers.show_buffer_preview()
@@ -124,6 +124,7 @@ if not vim.g.minimal_profile then
 		vim.cmd.bprevious()
 		buffers.show_buffer_preview()
 	end, { desc = "Previous buffer" })
+	vim.keymap.set("n", "<leader>l", buffers.switch_to_last_buffer, { desc = "Last buffer" })
 
 	local term = require("term")
 	vim.keymap.set("n", "<leader>tv", term.toggle_vsplit, { silent = true, desc = "Toggle terminal (v-split)" })

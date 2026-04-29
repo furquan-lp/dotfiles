@@ -4,6 +4,8 @@ local preview_win
 local preview_buf
 local close_timer
 local ns = vim.api.nvim_create_namespace("bufferpreview")
+local current_buffer
+local previous_buffer
 
 local function close_preview()
 	if close_timer then
@@ -29,6 +31,19 @@ local function display_width(lines)
 		width = math.max(width, vim.fn.strdisplaywidth(line))
 	end
 	return width
+end
+
+local function is_tracked_buffer(bufnr)
+	return vim.api.nvim_buf_is_valid(bufnr) and vim.bo[bufnr].buflisted
+end
+
+local function track_buffer(bufnr)
+	if not is_tracked_buffer(bufnr) or bufnr == current_buffer then
+		return
+	end
+
+	previous_buffer = current_buffer
+	current_buffer = bufnr
 end
 
 function M.show_buffer_preview()
@@ -106,6 +121,27 @@ function M.show_buffer_preview()
 	close_timer = vim.fn.timer_start(500, function()
 		vim.schedule(close_preview)
 	end)
+end
+
+function M.switch_to_last_buffer()
+	if not previous_buffer or not is_tracked_buffer(previous_buffer) then
+		vim.notify("No previous buffer", vim.log.levels.INFO)
+		return
+	end
+
+	vim.api.nvim_set_current_buf(previous_buffer)
+	M.show_buffer_preview()
+end
+
+function M.setup_last_buffer_tracking()
+	track_buffer(vim.api.nvim_get_current_buf())
+
+	vim.api.nvim_create_autocmd("BufEnter", {
+		group = vim.api.nvim_create_augroup("BufferPreviewLastBuffer", { clear = true }),
+		callback = function(args)
+			track_buffer(args.buf)
+		end,
+	})
 end
 
 return M
