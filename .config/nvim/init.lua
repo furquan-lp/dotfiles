@@ -115,14 +115,14 @@ if not vim.g.minimal_profile then
 		end,
 	})
 
-	local buffers = require("bufferoneline")
+	local buffers = require("bufferpreview")
 	vim.keymap.set("n", "<leader><TAB>", function()
 		vim.cmd.bnext()
-		buffers.show_buffers_one_line()
+		buffers.show_buffer_preview()
 	end, { desc = "Next buffer" })
 	vim.keymap.set("n", "<S-TAB>", function()
 		vim.cmd.bprevious()
-		buffers.show_buffers_one_line()
+		buffers.show_buffer_preview()
 	end, { desc = "Previous buffer" })
 
 	local term = require("term")
