@@ -371,6 +371,7 @@ return {
 						},
 					},
 					gopls = {},
+					jdtls = {},
 					tailwindcss = {
 						-- Prevent the tailwind LSP from attaching to markdown files
 						filetypes = {
