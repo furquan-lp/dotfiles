@@ -1,2 +1,5 @@
+[user]
+	name = Syed Furquan Ahmad
+	email = syed@nextdev.in
 [core]
 	editor = env NVIM_MINIMAL=1 nvim
