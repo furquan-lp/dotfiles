@@ -137,9 +137,27 @@ if vim.fn.has("mac") == 1 then
 	work_machine = true
 end
 
+local function use_terminal_background()
+	local groups = {
+		"Normal",
+		"NormalNC",
+		"EndOfBuffer",
+		"SignColumn",
+		"FoldColumn",
+		"LineNr",
+		"CursorLine",
+		"CursorLineNr",
+	}
+
+	for _, group in ipairs(groups) do
+		vim.cmd("highlight " .. group .. " ctermbg=NONE guibg=NONE")
+	end
+end
+
 function SetDefaultTheme()
 	if vim.g.minimal_profile then
 		vim.cmd.colorscheme("default")
+		use_terminal_background()
 		return
 	end
 
