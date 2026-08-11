@@ -103,6 +103,23 @@ if not vim.g.minimal_profile then
 		local desc = "Split " .. direction
 		vim.keymap.set("n", lhs, rhs, { buffer = buf_id, desc = desc })
 	end
+	local map_float = function(buf_id, lhs)
+		local rhs = function()
+			-- Make a centered float the target window, then open the entry in it.
+			-- The scratch buffer is wiped when go_in() replaces it with the file.
+			local scratch = vim.api.nvim_create_buf(false, true)
+			vim.bo[scratch].bufhidden = "wipe"
+			local new_target = require("floatwin").open(scratch, { enter = false })
+			MiniFiles.set_target_window(new_target)
+			MiniFiles.go_in({ close_on_file = true })
+			-- Focus the float once the explorer has closed (i.e. a file was opened)
+			if MiniFiles.get_explorer_state() == nil and vim.api.nvim_win_is_valid(new_target) then
+				vim.api.nvim_set_current_win(new_target)
+			end
+		end
+
+		vim.keymap.set("n", lhs, rhs, { buffer = buf_id, desc = "Open in float" })
+	end
 	vim.api.nvim_create_autocmd("User", {
 		pattern = "MiniFilesBufferCreate",
 		callback = function(args)
@@ -111,6 +128,7 @@ if not vim.g.minimal_profile then
 			map_split(buf_id, "<C-x>", "belowright horizontal")
 			map_split(buf_id, "<C-v>", "belowright vertical")
 			map_split(buf_id, "<C-t>", "tab")
+			map_float(buf_id, "<C-f>")
 		end,
 	})
 

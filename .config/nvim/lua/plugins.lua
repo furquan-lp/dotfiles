@@ -87,9 +87,33 @@ return {
 			-- This opens a window that shows you all of the keymaps for the current
 			-- Telescope picker. This is really useful to discover what Telescope can
 			-- do as well as how to actually do it!
+			local actions = require("telescope.actions")
+			local action_state = require("telescope.actions.state")
+
+			-- Open the selected entry in a centered floating window; entries
+			-- without a file path (e.g. help tags) fall back to the default action
+			local select_float = function(prompt_bufnr)
+				local entry = action_state.get_selected_entry()
+				local path = entry and (entry.path or entry.filename)
+				if not path then
+					return actions.select_default(prompt_bufnr)
+				end
+				actions.close(prompt_bufnr)
+				local buf = vim.fn.bufadd(path)
+				vim.bo[buf].buflisted = true
+				local win = require("floatwin").open(buf)
+				if entry.lnum then
+					pcall(vim.api.nvim_win_set_cursor, win, { entry.lnum, (entry.col or 1) - 1 })
+				end
+			end
+
 			require("telescope").setup({
 				defaults = {
 					file_ignore_patterns = { "%.git/" },
+					mappings = {
+						i = { ["<C-f>"] = select_float },
+						n = { ["<C-f>"] = select_float },
+					},
 				},
 				pickers = {
 					find_files = {

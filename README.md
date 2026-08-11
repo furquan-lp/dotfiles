@@ -83,6 +83,7 @@ Inside the `mini.files` explorer:
 | `<C-x>` | Open the entry in a horizontal split. |
 | `<C-v>` | Open the entry in a vertical split. |
 | `<C-t>` | Open the entry in a new tab. |
+| `<C-f>` | Open the entry in a centered floating window (closes the explorer). |
 
 ---
 
@@ -114,6 +115,8 @@ Inside the `mini.files` explorer:
 | `<leader>s.` | Normal | **S**earch **R**ecent files (oldfiles). |
 | `<leader>sn` | Normal | **S**earch **N**eovim config files. |
 | `<leader><leader>` | Normal | Find existing buffers. In the picker, `<C-d>` (insert mode) or `dd` (normal mode) deletes the selected buffer. |
+
+Inside any picker, `<C-x>` / `<C-v>` / `<C-t>` (Telescope defaults) open the selection in a horizontal split, vertical split, or new tab, and `<C-f>` opens it in a centered floating window (entries without a file path fall back to the default action).
 
 ---
 
