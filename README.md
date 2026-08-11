@@ -14,7 +14,7 @@ Use the minimal profile when you want a calmer editor with the shared core setti
 
 ```sh
 NVIM_MINIMAL=1 nvim
-nvim-min
+nvi
 svim /etc/some-file
 ```
 
@@ -26,6 +26,14 @@ Git is configured to use the same minimal profile for commit messages:
 [core]
 	editor = env NVIM_MINIMAL=1 nvim
 ```
+
+### Sessions (Full Profile)
+
+Launching a bare `nvim` in a project directory restores that project's session, and the session is saved back on exit. Sessions are stored centrally in `~/.local/share/nvim/sessions/`, keyed by the project path.
+
+* Opening specific files (`nvim path/to/file`) or piping stdin skips sessions entirely — a one-off edit never overwrites the project's saved session.
+* No sessions are saved for `$HOME` itself.
+* Legacy `<project>/.nvim/session.vim` files migrate automatically: the old session is loaded once, then deleted (the `.nvim` directory is removed if that leaves it empty).
 
 ---
 
@@ -46,11 +54,20 @@ Git is configured to use the same minimal profile for commit messages:
 
 | Keymap | Mode(s) | Description |
 | --- | --- | --- |
-| `<leader><TAB>` | Normal | Full profile: go to the next buffer and show the buffer list on one line. |
-| `<S-TAB>` | Normal | Full profile: go to the previous buffer and show the buffer list on one line. |
+| `<leader><TAB>` | Normal | Full profile: go to the next buffer and show a floating buffer-list preview (auto-closes after 500ms). |
+| `<S-TAB>` | Normal | Full profile: go to the previous buffer and show the floating buffer-list preview. |
+| `<leader>l` | Normal | Full profile: switch to the **l**ast buffer (most recently visited). |
 | `<leader>bd` | Normal | Close all other buffers, keeping only the current one. |
 | `<leader>E` | Normal | Full profile: toggle the `mini.files` file explorer. |
 | `<leader>yp` | Normal | Copy the current file's **relative path** to the system clipboard. |
+
+Inside the `mini.files` explorer:
+
+| Keymap | Description |
+| --- | --- |
+| `<C-x>` | Open the entry in a horizontal split. |
+| `<C-v>` | Open the entry in a vertical split. |
+| `<C-t>` | Open the entry in a new tab. |
 
 ---
 
@@ -81,7 +98,7 @@ Git is configured to use the same minimal profile for commit messages:
 | `<leader>sr` | Normal | **S**earch **R**esume last Telescope search. |
 | `<leader>s.` | Normal | **S**earch **R**ecent files (oldfiles). |
 | `<leader>sn` | Normal | **S**earch **N**eovim config files. |
-| `<leader><leader>` | Normal | Find existing buffers. |
+| `<leader><leader>` | Normal | Find existing buffers. In the picker, `<C-d>` (insert mode) or `dd` (normal mode) deletes the selected buffer. |
 
 ---
 
@@ -112,6 +129,8 @@ These keymaps are available when an LSP server is attached to a buffer. The `g` 
 | `grr` | Normal | Go to **R**eferences (via Telescope). |
 | `gri` | Normal | Go to **I**mplementation (via Telescope). |
 | `grd` | Normal | Go to **D**efinition (via Telescope). |
+| `grv` | Normal | Go to Definition in a **v**ertical split. |
+| `grx` | Normal | Go to Definition in a horizontal split. |
 | `grD` | Normal | Go to **D**eclaration. |
 | `grt` | Normal | Go to **T**ype **D**efinition (via Telescope). |
 | `gO` | Normal | Show d**O**cument symbols (via Telescope). |
@@ -157,15 +176,14 @@ These keymaps are active in **Insert Mode** when the completion menu is visible.
 
 ### **Git (`gitsigns.nvim`, Full Profile)**
 
-Gitsigns doesn't have many default keymaps, but it provides powerful commands and hunks navigation.
+Current-line git blame annotations are enabled by default (1s delay, end of line).
 
 | Command/Key | Mode(s) | Description |
 | --- | --- | --- |
-| `]c` | Normal | Go to the next hunk (change). |
-| `[c` | Normal | Go to the previous hunk. |
 | `<leader>gb` | Normal | Show a detailed git blame popup for the current line. |
 | `<leader>gd` | Normal | Preview the current git hunk in a floating window. |
 | `:Gitsigns toggle_current_line_blame` | Command | Toggle the git blame annotation for the current line. |
+| `:Gitsigns next_hunk` / `:Gitsigns prev_hunk` | Command | Jump between hunks (no keymaps are configured for hunk navigation). |
 
 ---
 
