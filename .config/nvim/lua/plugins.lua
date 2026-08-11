@@ -655,7 +655,7 @@ return {
 		},
 	},
 	{
-		"echasnovski/mini.nvim",
+		"nvim-mini/mini.nvim",
 		enabled = full_profile,
 		config = function()
 			local minifiles = require("mini.files")
