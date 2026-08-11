@@ -35,6 +35,21 @@ Launching a bare `nvim` in a project directory restores that project's session, 
 * No sessions are saved for `$HOME` itself.
 * Legacy `<project>/.nvim/session.vim` files migrate automatically: the old session is loaded once, then deleted (the `.nvim` directory is removed if that leaves it empty).
 
+### Colorschemes
+
+The theme is picked automatically at startup:
+
+* On a Mac (treated as the work machine): `nord`.
+* Otherwise, `kanagawa-wave` after 5pm and before 6am, `gruvbox` (light) during the day.
+* Minimal profile: the built-in `default` scheme with a transparent background, so the terminal's background shows through.
+
+### Automatic Behaviors
+
+* **Treesitter folding (full profile)**: `foldmethod=expr` with the treesitter fold expression; all folds start open (`foldlevel=99`).
+* **Cursor position restore**: reopening a file jumps to the last cursor position (skipped for git commit/rebase buffers).
+* **Yank highlight**: yanked text flashes briefly.
+* **Visual selection → `*` register (non-work machines)**: the visual selection is synced to the `*` register after 200ms of no cursor movement, approximating `clipboard=autoselect`.
+
 ---
 
 ### **General & Editor**
@@ -145,7 +160,7 @@ These keymaps are available when an LSP server is attached to a buffer. The `g` 
 | `[d` | Normal | Go to the previous diagnostic message. |
 | `]d` | Normal | Go to the next diagnostic message. |
 | `<leader>e` | Normal | Show diagnostic **E**rror messages in a floating window. |
-| `<leader>q` | Normal | Open diagnostic **Q**uickfix list. |
+| `<leader>q` | Normal | Open diagnostics in the location list. |
 | `<leader>sd` | Normal | Full profile: [Telescope] **S**earch **D**iagnostics. |
 
 ---
@@ -168,6 +183,8 @@ These keymaps are active in **Insert Mode** when the completion menu is visible.
 
 ### **Formatting (`conform.nvim`, Full Profile)**
 
+Buffers are also formatted automatically on save (1s timeout, falling back to the LSP formatter), except for C/C++ files.
+
 | Keymap | Mode(s) | Description |
 | --- | --- | --- |
 | `<leader>f` | Normal / Visual | **F**ormat the buffer or selection. |
@@ -183,7 +200,7 @@ Current-line git blame annotations are enabled by default (1s delay, end of line
 | `<leader>gb` | Normal | Show a detailed git blame popup for the current line. |
 | `<leader>gd` | Normal | Preview the current git hunk in a floating window. |
 | `:Gitsigns toggle_current_line_blame` | Command | Toggle the git blame annotation for the current line. |
-| `:Gitsigns next_hunk` / `:Gitsigns prev_hunk` | Command | Jump between hunks (no keymaps are configured for hunk navigation). |
+| `:Gitsigns nav_hunk next` / `:Gitsigns nav_hunk prev` | Command | Jump between hunks (no keymaps are configured for hunk navigation). |
 
 ---
 
@@ -191,7 +208,7 @@ Current-line git blame annotations are enabled by default (1s delay, end of line
 
 *   **guess-indent.nvim**: Automatically detects and sets indentation settings per file.
 *   **mini.indentscope**: Provides visual guides for indentation levels.
-*   **mini.trailspace**: Automatically highlights and removes trailing whitespace.
+*   **mini.trailspace**: Highlights trailing whitespace. Removal is left to the formatter, which runs on save; `:lua MiniTrailspace.trim()` is available for manual cleanup.
 *   **mini.statusline**: Provides a lightweight, informative statusline (with `LINE:COLUMN` location).
 *   **mini.clue**: Shows helpful keybinding hints for common prefixes like `<leader>`, `g`, `z`, etc.
 *   **mini.git**: Lightweight git integration (signs and commands) complementing `gitsigns.nvim`.
