@@ -258,6 +258,42 @@ return {
 						})
 					end, "[G]oto Definition (Split)")
 
+					-- Peek the definition in a small float anchored at the cursor,
+					-- without jumping. Focus moves into the float; leaving it
+					-- (window nav, :q) closes it.
+					map("grp", function()
+						vim.lsp.buf.definition({
+							on_list = function(options)
+								local item = options.items[1]
+								if not item then
+									return
+								end
+								local buf = vim.fn.bufadd(item.filename)
+								vim.bo[buf].buflisted = true
+								local win = vim.api.nvim_open_win(buf, true, {
+									relative = "cursor",
+									row = 1,
+									col = 0,
+									width = math.min(100, vim.o.columns - 4),
+									height = math.min(15, math.max(3, vim.o.lines - 8)),
+									border = "rounded",
+								})
+								pcall(vim.api.nvim_win_set_cursor, win, { item.lnum, math.max((item.col or 1) - 1, 0) })
+								if #options.items > 1 then
+									vim.notify(("Definition 1 of %d"):format(#options.items))
+								end
+								vim.api.nvim_create_autocmd("WinLeave", {
+									once = true,
+									callback = function()
+										if vim.api.nvim_win_is_valid(win) then
+											vim.api.nvim_win_close(win, true)
+										end
+									end,
+								})
+							end,
+						})
+					end, "[P]eek Definition")
+
 					-- WARN: This is not Goto Definition, this is Goto Declaration.
 					--  For example, in C this would take you to the header.
 					map("grD", vim.lsp.buf.declaration, "[G]oto [D]eclaration")

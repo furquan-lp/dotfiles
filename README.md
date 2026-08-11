@@ -149,6 +149,7 @@ These keymaps are available when an LSP server is attached to a buffer. The `g` 
 | `grd` | Normal | Go to **D**efinition (via Telescope). |
 | `grv` | Normal | Go to Definition in a **v**ertical split. |
 | `grx` | Normal | Go to Definition in a horizontal split. |
+| `grp` | Normal | **P**eek the definition in a small float at the cursor; leaving the float (window nav, `:q`) closes it. |
 | `grD` | Normal | Go to **D**eclaration. |
 | `grt` | Normal | Go to **T**ype **D**efinition (via Telescope). |
 | `gO` | Normal | Show d**O**cument symbols (via Telescope). |
