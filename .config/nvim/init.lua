@@ -200,35 +200,69 @@ vim.api.nvim_create_autocmd("BufReadPost", {
 -- Session Management --
 
 if not vim.g.minimal_profile then
-	vim.o.sessionoptions = "buffers,curdir,folds,help,tabpages,winsize,winpos,terminal,localoptions"
+	vim.o.sessionoptions = "buffers,curdir,folds,help,tabpages,winsize,winpos"
 
-	-- Per-project session file: <project>/.nvim/session.vim
+	-- Sessions live in a central directory, keyed by project cwd
+	-- (e.g. ~/.local/share/nvim/sessions/%Users%syed%Code%dotfiles.vim)
+	local session_dir = vim.fs.joinpath(vim.fn.stdpath("data"), "sessions")
 	local function session_file_path(cwd)
-		return vim.fs.joinpath(cwd, ".nvim", "session.vim")
-	end
-	local function ensure_session_dir(cwd)
-		vim.fn.mkdir(vim.fs.joinpath(cwd, ".nvim"), "p")
+		return vim.fs.joinpath(session_dir, (cwd:gsub("[\\/:]", "%%")) .. ".vim")
 	end
 
-	-- Save session when exiting (e.g., last :q, :qa, closing terminal)
-	vim.api.nvim_create_autocmd("VimLeavePre", {
+	-- Only a bare `nvim` launched in a project dir participates in sessions;
+	-- a one-off `nvim path/to/file` must not clobber the saved session on exit
+	local session_run = false
+
+	vim.api.nvim_create_autocmd("StdinReadPre", {
 		callback = function()
+			vim.g.started_with_stdin = true
+		end,
+	})
+
+	vim.api.nvim_create_autocmd("VimEnter", {
+		nested = true, -- so filetype detection, treesitter, and LSP attach to restored buffers
+		callback = function()
+			if vim.fn.argc() ~= 0 or vim.g.started_with_stdin or vim.fn.getcwd() == vim.env.HOME then
+				return
+			end
+			session_run = true
 			local cwd = vim.fn.getcwd()
-			if cwd ~= vim.env.HOME and vim.bo.filetype ~= "gitcommit" then
-				ensure_session_dir(cwd)
-				local f = session_file_path(cwd)
-				vim.cmd("silent! mksession! " .. vim.fn.fnameescape(f))
+			local f = session_file_path(cwd)
+
+			-- Legacy per-project session (<cwd>/.nvim/session.vim): load it when
+			-- no central session exists yet, then clean it up — the session gets
+			-- saved to the central directory on exit
+			local legacy_dir = vim.fs.joinpath(cwd, ".nvim")
+			local legacy_file = vim.fs.joinpath(legacy_dir, "session.vim")
+			local has_legacy = vim.fn.filereadable(legacy_file) == 1
+			if has_legacy and vim.fn.filereadable(f) == 0 then
+				f = legacy_file
+			end
+
+			if vim.fn.filereadable(f) == 1 then
+				local ok, err = pcall(vim.cmd, "source " .. vim.fn.fnameescape(f))
+				if not ok then
+					vim.notify("Session restore failed: " .. err, vim.log.levels.WARN)
+					return -- keep the legacy session around if restoring failed
+				end
+			end
+			if has_legacy then
+				vim.fn.delete(legacy_file)
+				vim.uv.fs_rmdir(legacy_dir) -- succeeds only if the dir is now empty
 			end
 		end,
 	})
-	-- Load session when starting in a project dir with no files specified
-	vim.api.nvim_create_autocmd("VimEnter", {
+
+	vim.api.nvim_create_autocmd("VimLeavePre", {
 		callback = function()
-			if vim.fn.argc() == 0 then -- don't override if you opened specific files
-				local f = session_file_path(vim.fn.getcwd())
-				if vim.fn.filereadable(f) == 1 then
-					vim.cmd("silent! source " .. vim.fn.fnameescape(f))
-				end
+			if not session_run then
+				return
+			end
+			vim.fn.mkdir(session_dir, "p")
+			local f = session_file_path(vim.fn.getcwd())
+			local ok, err = pcall(vim.cmd, "mksession! " .. vim.fn.fnameescape(f))
+			if not ok then
+				vim.notify("Session save failed: " .. err, vim.log.levels.WARN)
 			end
 		end,
 	})
