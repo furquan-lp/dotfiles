@@ -31,7 +31,7 @@ Git is configured to use the same minimal profile for commit messages:
 
 Launching a bare `nvim` in a project directory restores that project's session, and the session is saved back on exit. Sessions are stored centrally in `~/.local/share/nvim/sessions/`, keyed by the project path.
 
-* Opening specific files (`nvim path/to/file`) or piping stdin skips sessions entirely — a one-off edit never overwrites the project's saved session.
+* Opening specific files (`nvim path/to/file`) never overwrites an existing session — but if the project has no session yet, the state is saved on exit to seed one. Piping stdin skips sessions entirely.
 * No sessions are saved for `$HOME` itself.
 * Legacy `<project>/.nvim/session.vim` files migrate automatically: the old session is loaded once, then deleted (the `.nvim` directory is removed if that leaves it empty).
 

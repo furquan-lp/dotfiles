@@ -273,11 +273,17 @@ if not vim.g.minimal_profile then
 
 	vim.api.nvim_create_autocmd("VimLeavePre", {
 		callback = function()
-			if not session_run then
+			local cwd = vim.fn.getcwd()
+			local f = session_file_path(cwd)
+			-- A run that opened specific files still seeds the session when the
+			-- project has none yet; it only refuses to overwrite an existing one
+			local seed = vim.fn.filereadable(f) == 0
+				and not vim.g.started_with_stdin
+				and cwd ~= vim.env.HOME
+			if not (session_run or seed) then
 				return
 			end
 			vim.fn.mkdir(session_dir, "p")
-			local f = session_file_path(vim.fn.getcwd())
 			local ok, err = pcall(vim.cmd, "mksession! " .. vim.fn.fnameescape(f))
 			if not ok then
 				vim.notify("Session save failed: " .. err, vim.log.levels.WARN)
