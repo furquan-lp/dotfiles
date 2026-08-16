@@ -242,9 +242,29 @@ if not vim.g.minimal_profile then
 		return false
 	end
 
-	-- Only a bare `nvim` launched in a project dir participates in sessions;
-	-- a one-off `nvim path/to/file` must not clobber the saved session on exit
-	local session_run = false
+	-- Every run in a project dir saves the session on exit ("last quit wins").
+	-- A lock file (<session>.vim.lock holding the owner's PID) makes sure that
+	-- while an instance is running in a project, one-off `nvim file` windows
+	-- opened alongside it never overwrite its session: only the lock owner saves.
+	local session_owner = false
+	local owned_lock = nil
+
+	local function pid_alive(pid)
+		return pid ~= nil and vim.uv.kill(pid, 0) == 0
+	end
+
+	local function try_claim_session(cwd)
+		local lock = session_file_path(cwd) .. ".lock"
+		local ok, lines = pcall(vim.fn.readfile, lock)
+		local owner_pid = ok and tonumber(lines[1] or "") or nil
+		if owner_pid ~= vim.fn.getpid() and pid_alive(owner_pid) then
+			return -- a live instance owns this project's session; stay secondary
+		end
+		vim.fn.mkdir(session_dir, "p")
+		vim.fn.writefile({ tostring(vim.fn.getpid()) }, lock)
+		session_owner = true
+		owned_lock = lock
+	end
 
 	vim.api.nvim_create_autocmd("StdinReadPre", {
 		callback = function()
@@ -255,11 +275,14 @@ if not vim.g.minimal_profile then
 	vim.api.nvim_create_autocmd("VimEnter", {
 		nested = true, -- so filetype detection, treesitter, and LSP attach to restored buffers
 		callback = function()
-			if vim.fn.argc() ~= 0 or vim.g.started_with_stdin or vim.fn.getcwd() == vim.env.HOME then
+			local cwd = vim.fn.getcwd()
+			if vim.g.started_with_stdin or cwd == vim.env.HOME then
 				return
 			end
-			session_run = true
-			local cwd = vim.fn.getcwd()
+			try_claim_session(cwd)
+			if vim.fn.argc() ~= 0 then
+				return -- explicit files/dirs on the command line: don't restore
+			end
 			local f = session_file_path(cwd)
 
 			-- Legacy per-project session (<cwd>/.nvim/session.vim): load it when
@@ -288,14 +311,7 @@ if not vim.g.minimal_profile then
 
 	vim.api.nvim_create_autocmd("VimLeavePre", {
 		callback = function()
-			local cwd = vim.fn.getcwd()
-			local f = session_file_path(cwd)
-			-- A run that opened specific files still seeds the session when the
-			-- project has none yet; it only refuses to overwrite an existing one
-			local seed = not session_has_buffers(f)
-				and not vim.g.started_with_stdin
-				and cwd ~= vim.env.HOME
-			if not (session_run or seed) then
+			if not session_owner then
 				return
 			end
 			-- Never save an empty session — quitting a blank editor must not
@@ -307,14 +323,16 @@ if not vim.g.minimal_profile then
 					break
 				end
 			end
-			if not has_file_buf then
-				return
+			local cwd = vim.fn.getcwd()
+			if has_file_buf and cwd ~= vim.env.HOME then
+				vim.fn.mkdir(session_dir, "p")
+				local f = session_file_path(cwd)
+				local ok, err = pcall(vim.cmd, "mksession! " .. vim.fn.fnameescape(f))
+				if not ok then
+					vim.notify("Session save failed: " .. err, vim.log.levels.WARN)
+				end
 			end
-			vim.fn.mkdir(session_dir, "p")
-			local ok, err = pcall(vim.cmd, "mksession! " .. vim.fn.fnameescape(f))
-			if not ok then
-				vim.notify("Session save failed: " .. err, vim.log.levels.WARN)
-			end
+			vim.fn.delete(owned_lock)
 		end,
 	})
 end

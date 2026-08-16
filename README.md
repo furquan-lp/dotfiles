@@ -29,10 +29,11 @@ Git is configured to use the same minimal profile for commit messages:
 
 ### Sessions (Full Profile)
 
-Launching a bare `nvim` in a project directory restores that project's session, and the session is saved back on exit. Sessions are stored centrally in `~/.local/share/nvim/sessions/`, keyed by the project path.
+Launching a bare `nvim` in a project directory restores that project's session. Sessions are stored centrally in `~/.local/share/nvim/sessions/`, keyed by the project path.
 
-* Opening specific files (`nvim path/to/file`) never overwrites an existing session — but if the project has no session yet, the state is saved on exit to seed one. Piping stdin skips sessions entirely.
-* No sessions are saved for `$HOME` itself.
+* Saving is "last quit wins": every run — bare or with file arguments — saves the session on exit. The exception: while an instance is running in a project, it owns the session (via a `.lock` file holding its PID; stale locks from crashes are taken over), and one-off `nvim file` windows opened alongside it don't save on exit.
+* Opening specific files (`nvim path/to/file` or `nvim .`) never *restores* the session — restore only happens on a bare `nvim`.
+* Piping stdin skips sessions entirely, and no sessions are saved for `$HOME` itself.
 * Empty sessions are never saved: quitting a blank editor doesn't overwrite the project's session, and a session file without buffers is treated as absent (it doesn't block seeding and won't restore a blank editor).
 * Legacy `<project>/.nvim/session.vim` files migrate automatically: the old session is loaded once, then deleted (the `.nvim` directory is removed if that leaves it empty).
 
