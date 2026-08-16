@@ -33,6 +33,7 @@ Launching a bare `nvim` in a project directory restores that project's session, 
 
 * Opening specific files (`nvim path/to/file`) never overwrites an existing session — but if the project has no session yet, the state is saved on exit to seed one. Piping stdin skips sessions entirely.
 * No sessions are saved for `$HOME` itself.
+* Empty sessions are never saved: quitting a blank editor doesn't overwrite the project's session, and a session file without buffers is treated as absent (it doesn't block seeding and won't restore a blank editor).
 * Legacy `<project>/.nvim/session.vim` files migrate automatically: the old session is loaded once, then deleted (the `.nvim` directory is removed if that leaves it empty).
 
 ### Colorschemes

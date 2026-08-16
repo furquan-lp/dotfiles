@@ -227,6 +227,21 @@ if not vim.g.minimal_profile then
 		return vim.fs.joinpath(session_dir, (cwd:gsub("[\\/:]", "%%")) .. ".vim")
 	end
 
+	-- A session file is only real if it references at least one buffer
+	-- (mksession writes a `badd` line per buffer); buffer-less sessions are
+	-- treated as absent so they never block seeding or restore as a blank editor
+	local function session_has_buffers(f)
+		if vim.fn.filereadable(f) == 0 then
+			return false
+		end
+		for _, line in ipairs(vim.fn.readfile(f)) do
+			if line:match("^badd ") then
+				return true
+			end
+		end
+		return false
+	end
+
 	-- Only a bare `nvim` launched in a project dir participates in sessions;
 	-- a one-off `nvim path/to/file` must not clobber the saved session on exit
 	local session_run = false
@@ -253,11 +268,11 @@ if not vim.g.minimal_profile then
 			local legacy_dir = vim.fs.joinpath(cwd, ".nvim")
 			local legacy_file = vim.fs.joinpath(legacy_dir, "session.vim")
 			local has_legacy = vim.fn.filereadable(legacy_file) == 1
-			if has_legacy and vim.fn.filereadable(f) == 0 then
+			if has_legacy and not session_has_buffers(f) then
 				f = legacy_file
 			end
 
-			if vim.fn.filereadable(f) == 1 then
+			if session_has_buffers(f) then
 				local ok, err = pcall(vim.cmd, "source " .. vim.fn.fnameescape(f))
 				if not ok then
 					vim.notify("Session restore failed: " .. err, vim.log.levels.WARN)
@@ -277,10 +292,22 @@ if not vim.g.minimal_profile then
 			local f = session_file_path(cwd)
 			-- A run that opened specific files still seeds the session when the
 			-- project has none yet; it only refuses to overwrite an existing one
-			local seed = vim.fn.filereadable(f) == 0
+			local seed = not session_has_buffers(f)
 				and not vim.g.started_with_stdin
 				and cwd ~= vim.env.HOME
 			if not (session_run or seed) then
+				return
+			end
+			-- Never save an empty session — quitting a blank editor must not
+			-- poison the project's saved session
+			local has_file_buf = false
+			for _, b in ipairs(vim.fn.getbufinfo({ buflisted = 1 })) do
+				if b.name ~= "" and not b.name:match("^term://") then
+					has_file_buf = true
+					break
+				end
+			end
+			if not has_file_buf then
 				return
 			end
 			vim.fn.mkdir(session_dir, "p")
