@@ -432,6 +432,14 @@ return {
 					},
 					gopls = {},
 					jdtls = {},
+					astro = {
+						init_options = {
+							typescript = {
+								tsdk = vim.fn.stdpath("data")
+									.. "/mason/packages/typescript-language-server/node_modules/typescript/lib",
+							},
+						},
+					},
 					tailwindcss = {
 						-- Prevent the tailwind LSP from attaching to markdown files
 						filetypes = {
@@ -512,15 +520,15 @@ return {
 					vim.lsp.config(server, config)
 				end
 			end
+			-- Manually enable servers after setup
+			vim.lsp.enable(vim.tbl_keys(servers.mason))
+			vim.lsp.enable(vim.tbl_keys(servers.others))
 
 			-- After configuring our language servers, mason-lspconfig will automatically enable them
 			require("mason-lspconfig").setup({
-				ensure_installed = {}, -- explicitly set to an empty table (Kickstart populates installs via mason-tool-installer)
-				-- automatic_enable = true -- set to false to disable this feature
+				ensure_installed = {}, -- populate installs via mason-tool-installer instead
+				automatic_enable = false, -- don't auto enable to avoid config race issues
 			})
-
-			-- HACK: Enable Flow LSP (not managed by Mason)
-			vim.lsp.enable("flow")
 		end,
 	},
 	{ -- Autoformat
