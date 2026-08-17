@@ -37,6 +37,32 @@ local function is_tracked_buffer(bufnr)
 	return vim.api.nvim_buf_is_valid(bufnr) and vim.bo[bufnr].buflisted
 end
 
+-- Buffers shown in other windows of the current tabpage. Cycling skips
+-- them (except the current buffer): switching a pane to a file that's
+-- already on screen is almost never what the switcher is for
+local function visible_in_other_windows()
+	local cur_win = vim.api.nvim_get_current_win()
+	local bufs = {}
+	for _, win in ipairs(vim.api.nvim_tabpage_list_wins(0)) do
+		if win ~= cur_win then
+			bufs[vim.api.nvim_win_get_buf(win)] = true
+		end
+	end
+	return bufs
+end
+
+local function switchable_buffers()
+	local cur = vim.api.nvim_get_current_buf()
+	local visible = visible_in_other_windows()
+	local infos = {}
+	for _, b in ipairs(vim.fn.getbufinfo({ buflisted = 1 })) do
+		if b.bufnr == cur or not visible[b.bufnr] then
+			table.insert(infos, b)
+		end
+	end
+	return infos
+end
+
 local function track_buffer(bufnr)
 	if not is_tracked_buffer(bufnr) or bufnr == current_buffer then
 		return
@@ -50,7 +76,7 @@ function M.show_buffer_preview()
 	close_preview()
 
 	local cur = vim.api.nvim_get_current_buf()
-	local infos = vim.fn.getbufinfo({ buflisted = 1 })
+	local infos = switchable_buffers()
 
 	local cur_idx
 	for i, b in ipairs(infos) do
@@ -121,6 +147,38 @@ function M.show_buffer_preview()
 	close_timer = vim.fn.timer_start(500, function()
 		vim.schedule(close_preview)
 	end)
+end
+
+-- Switch to the next (direction = 1) or previous (direction = -1) buffer,
+-- wrapping around, skipping buffers visible in other windows
+function M.cycle(direction)
+	local infos = switchable_buffers()
+	if #infos == 0 then
+		return
+	end
+
+	local cur = vim.api.nvim_get_current_buf()
+	local cur_idx
+	for i, b in ipairs(infos) do
+		if b.bufnr == cur then
+			cur_idx = i
+			break
+		end
+	end
+
+	local target
+	if not cur_idx then
+		-- Current buffer is unlisted (help, terminal, ...): jump to an
+		-- end of the list like :bnext/:bprevious would
+		target = direction > 0 and infos[1] or infos[#infos]
+	elseif #infos > 1 then
+		target = infos[(cur_idx - 1 + direction) % #infos + 1]
+	end
+
+	if target then
+		vim.api.nvim_set_current_buf(target.bufnr)
+	end
+	M.show_buffer_preview()
 end
 
 function M.switch_to_last_buffer()

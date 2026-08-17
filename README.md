@@ -72,6 +72,9 @@ The theme is picked automatically at startup:
 | --- | --- | --- |
 | `<leader><TAB>` | Normal | Full profile: go to the next buffer and show a floating buffer-list preview (auto-closes after 500ms). |
 | `<S-TAB>` | Normal | Full profile: go to the previous buffer and show the floating buffer-list preview. |
+
+The `<leader><TAB>` / `<S-TAB>` switcher (and its preview list) skips buffers already visible in another window of the current tab. The current buffer is always shown in the preview so you know where you are.
+
 | `<leader>l` | Normal | Full profile: switch to the **l**ast buffer (most recently visited). |
 | `<leader>bd` | Normal | Close all other buffers, keeping only the current one. |
 | `<leader>E` | Normal | Full profile: toggle the `mini.files` file explorer. |
