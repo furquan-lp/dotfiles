@@ -40,7 +40,7 @@ Launching a bare `nvim` in a project directory restores that project's session. 
 The theme is picked automatically at startup:
 
 * On a Mac (treated as the work machine): `nord`.
-* Otherwise, `kanagawa-wave` after 5pm and before 6am, `gruvbox` (light) during the day.
+* Otherwise, `kanagawa-wave` after 6pm and before 6am, `gruvbox` (light) during the day.
 * Minimal profile: the built-in `default` scheme with a transparent background, so the terminal's background shows through.
 
 ### Automatic Behaviors
@@ -49,6 +49,7 @@ The theme is picked automatically at startup:
 * **Cursor position restore**: reopening a file jumps to the last cursor position (skipped for git commit/rebase buffers).
 * **Yank highlight**: yanked text flashes briefly.
 * **Visual selection → `*` register (non-work machines)**: the visual selection is synced to the `*` register after 200ms of no cursor movement, approximating `clipboard=autoselect`.
+* **LSP reference highlight (full profile)**: resting the cursor on a symbol highlights its other references in the buffer; moving the cursor clears them.
 
 ---
 
@@ -101,7 +102,7 @@ Inside the `mini.files` explorer:
 
 | Keymap | Mode(s) | Description |
 | --- | --- | --- |
-| `<leader>sf` | Normal | **S**earch **F**iles (respects .gitignore). |
+| `<leader>sf` | Normal | **S**earch **F**iles (includes hidden files, respects .gitignore). |
 | `<leader>sg` | Normal | **S**earch by **G**rep (live grep) in your project. |
 | `<leader>sw` | Normal | **S**earch for the current **W**ord under the cursor. |
 | `<leader>s/` | Normal | **S**earch by Grep in currently open files. |
@@ -177,7 +178,7 @@ These keymaps are active in **Insert Mode** when the completion menu is visible.
 | --- | --- | --- |
 | `<Tab>` | Insert | Select the next item / If a snippet is active, move to the next placeholder / Accept selection. |
 | `<S-Tab>` | Insert | Select the previous item / If a snippet is active, move to the previous placeholder. |
-| `<C-Space>` | Insert | Manually open the completion menu. |
+| `<C-Space>` | Insert | Manually open the completion menu, or the docs if the menu is already open. |
 | `<C-e>` | Insert | Hide the completion menu. |
 | `<C-n>` / `<Down>` | Insert | Select the next item in the menu. |
 | `<C-p>` / `<Up>` | Insert | Select the previous item in the menu. |
@@ -216,6 +217,7 @@ Current-line git blame annotations are enabled by default (1s delay, end of line
 *   **mini.statusline**: Provides a lightweight, informative statusline (with `LINE:COLUMN` location).
 *   **mini.clue**: Shows helpful keybinding hints for common prefixes like `<leader>`, `g`, `z`, etc.
 *   **mini.git**: Lightweight git integration (signs and commands) complementing `gitsigns.nvim`.
+*   **fidget.nvim**: Shows LSP progress/status updates in the bottom-right corner.
 *   **hardtime.nvim**: Encourages you to use more efficient movement keys.
 *   **smear-cursor.nvim**: Adds a smooth, "smearing" animation to your cursor movement.
 *   **nvim-treesitter-context**: Shows the current code context (e.g., function/class) at the top of the window. Defaults to one line per scope level; use `<leader>c` to toggle full multiline context.
