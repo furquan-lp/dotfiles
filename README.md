@@ -1,7 +1,5 @@
 # Syed's Dotfiles
 
-A lot of stuff is WIP.
-
 ## My Neovim Cheatsheet
 
 **Leader Key:** `,`
