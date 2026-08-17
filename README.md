@@ -225,3 +225,55 @@ Current-line git blame annotations are enabled by default (1s delay, end of line
 *   **smear-cursor.nvim**: Adds a smooth, "smearing" animation to your cursor movement.
 *   **nvim-treesitter-context**: Shows the current code context (e.g., function/class) at the top of the window. Defaults to one line per scope level; use `<leader>c` to toggle full multiline context.
 *   **nvim-colorizer.lua**: Highlights color codes (like hex / rgb) with their actual colors in the buffer.
+
+## My Tmux Cheatsheet
+
+**Prefix:** `C-a` (the default `C-b` is unbound; press `C-a C-a` to send a literal `C-a` through)
+
+### Config Variants
+
+The configs live in `.config/tmux/`:
+
+* **`tmux.conf`** — the main (dark) config. Symlink it to `~/.tmux.conf`.
+* **`tmux.light.conf`** — same config with colors tuned for Gruvbox light terminals.
+* **`tmux.2.conf`** — a minimal fallback for old tmux 2.x servers (prefix is `C-space` there, no popup).
+* **`tmux.default.conf`** — a reference dump of tmux's stock options; not meant to be loaded.
+
+### Machine-Local Overrides
+
+The main and light configs end with:
+
+```tmux
+source-file -q ~/.tmux.local.conf
+```
+
+so each machine can layer its own untracked additions (themes, plugins) on top of the shared base — the `-q` makes the file optional. For example, the work Mac's `~/.tmux.local.conf` loads the nord theme via TPM:
+
+```tmux
+set -g @plugin 'tmux-plugins/tpm'
+set -g @plugin 'tmux-plugins/tmux-sensible'
+set -g @plugin 'nordtheme/tmux'
+run '~/.tmux/plugins/tpm/tpm'
+```
+
+Keep the `run tpm` line last so plugin theming wins over the base status styling.
+
+### Keybindings
+
+All bindings are behind the prefix. New splits and popups open in the current pane's directory.
+
+| Keymap | Description |
+| --- | --- |
+| `prefix \|` | Split side-by-side (replaces the default `%`). |
+| `prefix -` | Split stacked (replaces the default `"`). |
+| `prefix P` | Open a centered 70%×70% popup shell (tmux 3.2+). |
+
+Copy mode uses **vi keys** (`mode-keys vi`): `prefix [` to enter, then the usual vi motions with `Space` (begin selection), `Enter` (copy and exit), and `q` (quit).
+
+### Behaviors
+
+* **Mouse on**: click to select panes/windows, drag borders to resize, wheel to scroll.
+* **Status bar on top**, with a second status line listing each pane as `index[WxH]` (the active pane is highlighted).
+* **Terminal titles** are set to `pane_title window_name session_name`.
+* **Escape time is 5ms**, so `Esc` in Neovim doesn't lag.
+* The status bar uses the terminal's default background, so the theme's colors show through.
