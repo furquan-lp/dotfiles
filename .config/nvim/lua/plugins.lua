@@ -412,6 +412,7 @@ return {
 				--  - settings (table): Override the default settings passed when initializing the server.
 				--        For example, to see the options for `lua_ls`, you could go to: https://luals.github.io/wiki/settings/
 				mason = {
+					clojure_lsp = {},
 					pylsp = {},
 					--    https://github.com/pmizio/typescript-tools.nvim
 					ts_ls = {
@@ -752,6 +753,7 @@ return {
 			local parsers = {
 				"bash",
 				"c",
+				"clojure",
 				"diff",
 				"html",
 				"lua",
