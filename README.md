@@ -75,6 +75,8 @@ The theme is picked automatically at startup:
 
 The `<leader><TAB>` / `<S-TAB>` switcher (and its preview list) skips buffers already visible in another window of the current tab. The current buffer is always shown in the preview so you know where you are.
 
+| Keymap | Mode(s) | Description |
+| --- | --- | --- |
 | `<leader>l` | Normal | Full profile: switch to the **l**ast buffer (most recently visited). |
 | `<leader>bd` | Normal | Close all other buffers, keeping only the current one. |
 | `<leader>E` | Normal | Full profile: toggle the `mini.files` file explorer. |
@@ -266,7 +268,7 @@ All bindings are behind the prefix. New splits and popups open in the current pa
 | --- | --- |
 | `prefix \|` | Split side-by-side (replaces the default `%`). |
 | `prefix -` | Split stacked (replaces the default `"`). |
-| `prefix P` | Open a centered 70%×70% popup shell (tmux 3.2+). |
+| `prefix P` | Open a centered 60%×60% popup shell (tmux 3.2+). |
 
 Copy mode uses **vi keys** (`mode-keys vi`): `prefix [` to enter, then the usual vi motions with `Space` (begin selection), `Enter` (copy and exit), and `q` (quit).
 
