@@ -441,6 +441,7 @@ return {
 							},
 						},
 					},
+					cssls = {},
 					tailwindcss = {
 						-- Prevent the tailwind LSP from attaching to markdown files
 						filetypes = {
