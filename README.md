@@ -191,6 +191,17 @@ These keymaps are active in **Insert Mode** when the completion menu is visible.
 
 ---
 
+### **AI Ghost Completions (Claude CLI, Full Profile)**
+
+Debounced (400ms) ghost-text suggestions at the cursor, powered by a persistent `claude -p` worker (Haiku, low effort, thinking disabled) — requires the `claude` CLI to be installed and logged in (on machines without `claude`, the feature silently stays off). Suggestions stream in as dimmed virtual text; typing, moving the cursor, or leaving insert mode dismisses them. Suggestions are kept minimal: output is capped at 160 tokens, and any part that would duplicate code already below the cursor is trimmed away. The worker is recycled every 25 completions to keep its context lean.
+
+| Keymap | Mode(s) | Description |
+| --- | --- | --- |
+| `<C-l>` | Insert | Accept the current ghost suggestion. |
+| `<leader>ta` | Normal | **T**oggle **A**utocomplete on/off (also `:ClaudeCompleteToggle`). |
+
+---
+
 ### **Formatting (`conform.nvim`, Full Profile)**
 
 Buffers are also formatted automatically on save (1s timeout, falling back to the LSP formatter), except for C/C++ files.

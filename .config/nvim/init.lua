@@ -145,6 +145,9 @@ if not vim.g.minimal_profile then
 	local term = require("term")
 	vim.keymap.set("n", "<leader>tv", term.toggle_vsplit, { silent = true, desc = "Toggle terminal (v-split)" })
 	vim.keymap.set("n", "<leader>tf", term.toggle_float, { silent = true, desc = "Toggle terminal (float)" })
+
+	-- Ghost-text autocomplete via the Claude Code CLI (see lua/autocomplete.lua)
+	require("autocomplete").setup()
 end
 
 -- Custom Functions --
