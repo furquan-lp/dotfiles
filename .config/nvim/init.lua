@@ -148,6 +148,8 @@ if not vim.g.minimal_profile then
 
 	-- Ghost-text autocomplete via the Claude Code CLI (see lua/autocomplete.lua)
 	require("autocomplete").setup()
+	-- AI selection transform via the Claude Code CLI (see lua/transform.lua)
+	require("transform").setup()
 end
 
 -- Custom Functions --

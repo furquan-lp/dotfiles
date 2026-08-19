@@ -193,12 +193,23 @@ These keymaps are active in **Insert Mode** when the completion menu is visible.
 
 ### **AI Ghost Completions (Claude CLI, Full Profile)**
 
-Debounced (400ms) ghost-text suggestions at the cursor, powered by a persistent `claude -p` worker (Haiku, low effort, thinking disabled) — requires the `claude` CLI to be installed and logged in (on machines without `claude`, the feature silently stays off). Suggestions stream in as dimmed virtual text; typing, moving the cursor, or leaving insert mode dismisses them. Suggestions are kept minimal: output is capped at 160 tokens, and any part that would duplicate code already below the cursor is trimmed away. The worker is recycled every 25 completions to keep its context lean.
+Debounced (400ms) ghost-text suggestions at the cursor, powered by a persistent `claude -p` worker (Haiku, thinking disabled) — requires the `claude` CLI to be installed and logged in (on machines without `claude`, the feature silently stays off). Suggestions stream in as dimmed virtual text; typing, moving the cursor, or leaving insert mode dismisses them. Suggestions are kept minimal: output is capped at 160 tokens, and any part that would duplicate code already below the cursor is trimmed away. The worker is recycled every 25 completions to keep its context lean.
 
 | Keymap | Mode(s) | Description |
 | --- | --- | --- |
 | `<C-l>` | Insert | Accept the current ghost suggestion. |
 | `<leader>ta` | Normal | **T**oggle **A**utocomplete on/off (also `:ClaudeCompleteToggle`). |
+
+---
+
+### **AI Selection Transform (Claude CLI, Full Profile)**
+
+Cursor-style "Cmd-K": select lines in visual mode, describe the change in a small floating prompt, and the selection is rewritten in place (Haiku with thinking enabled, one-shot `claude -p` per transform). Selections operate on whole lines; ±30 lines of context are sent along. The result is applied as a single undo step — `u` reverts it — and is discarded (with a notice) if the buffer changed while the model was working.
+
+| Keymap | Mode(s) | Description |
+| --- | --- | --- |
+| `<leader>ai` | Visual | Open the **AI** transform prompt for the selected lines. |
+| `<CR>` / `<Esc>` | Prompt float | Submit the instruction / cancel. |
 
 ---
 

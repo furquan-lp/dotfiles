@@ -1,7 +1,9 @@
 -- Ghost-text autocomplete backed by the Claude Code CLI (`claude -p`).
 --
--- One persistent worker process (stream-json in/out, thinking disabled,
--- haiku at low effort) serves debounced completion requests while typing.
+-- One persistent worker process (stream-json in/out, haiku with thinking
+-- disabled via MAX_THINKING_TOKENS=0 - haiku has no graded effort levels,
+-- thinking on/off is the only knob) serves debounced completion requests
+-- while typing.
 -- Suggestions stream in as dimmed virtual text at the cursor; any edit,
 -- cursor move, or leaving insert mode dismisses them. Only the newest
 -- request is honored ("gen" counter) and at most one is in flight; the
@@ -30,12 +32,16 @@ local system_prompt = table.concat({
 	"and after <CURSOR> already exists in the buffer and will stay exactly as",
 	"it is. Output ONLY the raw text to insert at <CURSOR> - the minimal",
 	"insertion that connects the code before the cursor to the code after it.",
+	"<CURSOR> is only a position marker, not an HTML tag: it has no closing",
+	"tag, and your output must never contain <CURSOR> or </CURSOR>.",
 	"NEVER repeat, rewrite, or close code that already appears after <CURSOR>.",
 	"Usually the right insertion is the rest of the current line, or a single",
 	"line; produce several lines only when the surrounding code clearly calls",
 	"for it (e.g. an empty function body). If the code is already complete and",
 	"nothing needs inserting, output nothing at all.",
-	"No explanation, no markdown fences, no commentary.",
+	"No explanation and no commentary. Never wrap the output in markdown",
+	"code fences (```), even when completing comments or docstrings -",
+	"the output is inserted into the file verbatim.",
 	"Match the file's existing indentation style.",
 	"Each request is independent; ignore previous requests.",
 }, " ")
@@ -86,6 +92,47 @@ local function invalidate()
 	clear_ghost()
 end
 
+-- <CURSOR> looks like an opening HTML tag, so the model occasionally
+-- "closes" it by ending the completion with </CURSOR>, or echoes the marker
+-- itself. Strip both wherever they appear; a line that was nothing but the
+-- marker is dropped entirely. While streaming, also hold back a trailing
+-- partial marker (e.g. "</CURS") so it never flashes as ghost text.
+function M._strip_markers(text, streaming)
+	local lines = {}
+	for _, l in ipairs(vim.split(text, "\n", { plain = true })) do
+		local stripped, n = l:gsub("</?CURSOR>", "")
+		if n == 0 or vim.trim(stripped) ~= "" then
+			lines[#lines + 1] = stripped
+		end
+	end
+	local out = table.concat(lines, "\n")
+	if streaming then
+		for len = 8, 1, -1 do
+			local tail = out:sub(-len)
+			if #tail == len and (("</CURSOR>"):sub(1, len) == tail or ("<CURSOR>"):sub(1, len) == tail) then
+				out = out:sub(1, #out - len)
+				break
+			end
+		end
+	end
+	return out
+end
+
+-- Models sometimes wrap the completion in markdown fences despite being told
+-- not to (especially inside comments/docstrings). Drop a first line that is
+-- nothing but backticks (plus an optional language tag) - including a
+-- still-streaming partial fence - and a last line that is only backticks.
+function M._strip_fences(text)
+	local lines = vim.split(text, "\n", { plain = true })
+	if lines[1] and lines[1]:match("^%s*`+[%w_%-]*%s*$") then
+		table.remove(lines, 1)
+	end
+	if #lines > 0 and lines[#lines]:match("^%s*`+%s*$") then
+		table.remove(lines, #lines)
+	end
+	return table.concat(lines, "\n")
+end
+
 -- Cut a suggestion off at the point where it starts re-typing code that
 -- already exists below the cursor (chat models love to rewrite the rest of
 -- the block instead of inserting the one missing piece). Only lines with
@@ -125,7 +172,7 @@ local function trim_overlap(req, text)
 	return table.concat(lines, "\n")
 end
 
-local function render(req, text)
+local function render(req, text, is_final)
 	-- Only render while the cursor is still exactly where the request was made
 	if not vim.api.nvim_buf_is_valid(req.bufnr) or vim.api.nvim_get_current_buf() ~= req.bufnr then
 		return
@@ -135,6 +182,7 @@ local function render(req, text)
 		return
 	end
 
+	text = M._strip_markers(M._strip_fences(text), not is_final)
 	text = trim_overlap(req, text):gsub("%s+$", "")
 	if text == "" then
 		-- Everything the model produced duplicates existing code: no ghost,
@@ -167,7 +215,7 @@ local function handle_event(ev)
 		if e.type == "content_block_delta" and (e.delta or {}).type == "text_delta" then
 			accumulated = accumulated .. e.delta.text
 			if current.gen == gen then
-				render(current, accumulated)
+				render(current, accumulated, false)
 			end
 		end
 	elseif ev.type == "result" then
@@ -175,7 +223,7 @@ local function handle_event(ev)
 		turns = turns + 1
 		local final = type(ev.result) == "string" and ev.result or accumulated
 		if current and current.gen == gen and not ev.is_error then
-			render(current, final)
+			render(current, final, true)
 		end
 		current = nil
 		if ev.is_error or turns >= config.max_turns then
@@ -199,8 +247,7 @@ local function ensure_worker()
 		"-p",
 		"--model",
 		config.model,
-		"--effort",
-		"low",
+		"--strict-mcp-config",
 		"--system-prompt",
 		system_prompt,
 		"--tools",
