@@ -254,18 +254,20 @@ Current-line git blame annotations are enabled by default (1s delay, end of line
 
 **Prefix:** `C-a` (the default `C-b` is unbound; press `C-a C-a` to send a literal `C-a` through)
 
-### Config Variants
+### Config Layout & Theming
 
 The configs live in `.config/tmux/`:
 
-* **`tmux.conf`** — the main (dark) config. Symlink it to `~/.tmux.conf`.
-* **`tmux.light.conf`** — same config with colors tuned for Gruvbox light terminals.
-* **`tmux.2.conf`** — a minimal fallback for old tmux 2.x servers (prefix is `C-space` there, no popup).
+* **`tmux.conf`** — the single main config; everything except colors lives here.
+* **`tmux.dark.conf`** / **`tmux.light.conf`** — colors-only theme files (Kanagawa dark / Gruvbox light terminals), sourced on top of the main config.
+* **`tmux.2.conf`** — a minimal config for a second, nested tmux session: the `tmuxt2` alias in `.bashrc` starts it as a separate server on its own socket (`tmux -L syed-f2`), with prefix `C-space` so it doesn't collide with the outer session's `C-a`.
 * **`tmux.default.conf`** — a reference dump of tmux's stock options; not meant to be loaded.
+
+The theme is picked by time of day, with the same 6pm–6am rule used by `.bashrc` and Neovim: `tmux.conf` sources the dark or light theme file by hour at startup, and `uxterm-setcolor` re-sources the matching theme file into the running server when the terminal switches between dark and light modes.
 
 ### Machine-Local Overrides
 
-The main and light configs end with:
+The main config ends with:
 
 ```tmux
 source-file -q ~/.tmux.local.conf

@@ -57,7 +57,7 @@ rm -f /tmp/.colormode_ran_dark /tmp/.colormode_ran_light 2>/dev/null || true
 xrdb ~/.Xresources
 
 if [ "$1" -gt 17 ] || [ "$1" -lt 6 ]; then
-  tmux source-file ~/.config/tmux/tmux.conf 2>/dev/null || true
+  tmux source-file ~/.config/tmux/tmux.dark.conf 2>/dev/null || true
   xrdb -merge ~/.config/X11/Xresources.kanagawa
   apply_from_xrdb
   touch /tmp/.colormode_ran_dark
