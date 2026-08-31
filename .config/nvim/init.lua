@@ -1,6 +1,7 @@
 -- Config begins here --
 
 vim.g.minimal_profile = vim.env.NVIM_MINIMAL == "1"
+vim.g.have_nerd_font = true
 
 -- Tab and indentation settings
 vim.opt.tabstop = 4

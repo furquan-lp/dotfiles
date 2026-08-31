@@ -32,8 +32,8 @@ Launching a bare `nvim` in a project directory restores that project's session. 
 * Saving is "last quit wins": every run — bare or with file arguments — saves the session on exit. The exception: while an instance is running in a project, it owns the session (via a `.lock` file holding its PID; stale locks from crashes are taken over), and one-off `nvim file` windows opened alongside it don't save on exit.
 * Opening specific files (`nvim path/to/file` or `nvim .`) never *restores* the session — restore only happens on a bare `nvim`.
 * Piping stdin skips sessions entirely, and no sessions are saved for `$HOME` itself.
-* Empty sessions are never saved: quitting a blank editor doesn't overwrite the project's session, and a session file without buffers is treated as absent (it doesn't block seeding and won't restore a blank editor).
-* Legacy `<project>/.nvim/session.vim` files migrate automatically: the old session is loaded once, then deleted (the `.nvim` directory is removed if that leaves it empty).
+* Empty sessions are never saved: quitting a blank editor (or one holding only terminal buffers) doesn't overwrite the project's session, and a session file without buffers is treated as absent (it doesn't block seeding and won't restore a blank editor).
+* Legacy `<project>/.nvim/session.vim` files migrate automatically on a bare `nvim`: the old session is loaded once if no central session with buffers exists yet (otherwise the central one wins), then deleted either way (the `.nvim` directory is removed if that leaves it empty).
 
 ### Colorschemes
 
@@ -181,8 +181,8 @@ These keymaps are active in **Insert Mode** when the completion menu is visible.
 
 | Keymap | Mode | Description |
 | --- | --- | --- |
-| `<Tab>` | Insert | Select the next item / If a snippet is active, move to the next placeholder / Accept selection. |
-| `<S-Tab>` | Insert | Select the previous item / If a snippet is active, move to the previous placeholder. |
+| `<Tab>` | Insert | Accept the selected item / If a snippet is active, move to the next placeholder. |
+| `<S-Tab>` | Insert | If a snippet is active, move to the previous placeholder. |
 | `<C-Space>` | Insert | Manually open the completion menu, or the docs if the menu is already open. |
 | `<C-e>` | Insert | Hide the completion menu. |
 | `<C-n>` / `<Down>` | Insert | Select the next item in the menu. |
@@ -243,7 +243,7 @@ Current-line git blame annotations are enabled by default (1s delay, end of line
 *   **mini.trailspace**: Highlights trailing whitespace. Removal is left to the formatter, which runs on save; `:lua MiniTrailspace.trim()` is available for manual cleanup.
 *   **mini.statusline**: Provides a lightweight, informative statusline (with `LINE:COLUMN` location).
 *   **mini.clue**: Shows helpful keybinding hints for common prefixes like `<leader>`, `g`, `z`, etc.
-*   **mini.git**: Lightweight git integration (signs and commands) complementing `gitsigns.nvim`.
+*   **mini.git**: Lightweight git integration (the `:Git` command and git data for other modules; signs still come from `gitsigns.nvim`).
 *   **fidget.nvim**: Shows LSP progress/status updates in the bottom-right corner.
 *   **hardtime.nvim**: Encourages you to use more efficient movement keys.
 *   **smear-cursor.nvim**: Adds a smooth, "smearing" animation to your cursor movement.
@@ -258,12 +258,12 @@ Current-line git blame annotations are enabled by default (1s delay, end of line
 
 The configs live in `.config/tmux/`:
 
-* **`tmux.conf`** — the single main config; everything except colors lives here.
-* **`tmux.dark.conf`** / **`tmux.light.conf`** — colors-only theme files (Kanagawa dark / Gruvbox light terminals), sourced on top of the main config.
+* **`tmux.conf`** — the single main config; everything except the window-status colors lives here (it also sets the base status foreground and the pane-title accent color itself).
+* **`tmux.dark.conf`** / **`tmux.light.conf`** — colors-only theme files overriding the window-status styles (Kanagawa dark / Gruvbox light terminals), sourced on top of the main config.
 * **`tmux.2.conf`** — a minimal config for a second, nested tmux session: the `tmuxt2` alias in `.bashrc` starts it as a separate server on its own socket (`tmux -L syed-f2`), with prefix `C-space` so it doesn't collide with the outer session's `C-a`.
 * **`tmux.default.conf`** — a reference dump of tmux's stock options; not meant to be loaded.
 
-The theme is picked by time of day, with the same 6pm–6am rule used by `.bashrc` and Neovim: `tmux.conf` sources the dark or light theme file by hour at startup, and `uxterm-setcolor` re-sources the matching theme file into the running server when the terminal switches between dark and light modes.
+The theme is picked by time of day, with the same 6pm–6am rule used by `.bashrc` and Neovim: `tmux.conf` sources the dark or light theme file by hour at startup, and `uxterm-setcolor` re-sources the matching theme file into the running default-socket server (the nested `tmuxt2` server is not re-themed). The switch is triggered from `.bashrc` on the first new shell after the hour bucket changes, not the instant the terminal flips modes.
 
 ### Machine-Local Overrides
 
