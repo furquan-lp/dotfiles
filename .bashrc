@@ -130,6 +130,7 @@ alias tmuxt2='tmux -L syed-f2 -f ~/.config/tmux/tmux.2.conf'
 alias nvi='NVIM_MINIMAL=1 nvim'
 alias svim='EDITOR="env NVIM_MINIMAL=1 $HOME/.local/bin/nvim" sudoedit'
 ##alias yarn='yarn --use-yarnrc ~/.config/yarn/config'
+alias xcopy='xclip -selection clipboard'
 
 #export VIMINIT='let $MYVIMRC="~/.config/vim/vimrc" | source $MYVIMRC'
 export XAUTHORITY="$XDG_RUNTIME_DIR"/Xauthority
