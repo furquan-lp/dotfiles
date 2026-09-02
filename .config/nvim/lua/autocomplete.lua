@@ -1,14 +1,30 @@
--- Ghost-text autocomplete backed by the Claude Code CLI (`claude -p`).
+-- Ghost-text autocomplete with pluggable backends.
 --
--- One persistent worker process (stream-json in/out, haiku with thinking
--- disabled via MAX_THINKING_TOKENS=0 - haiku has no graded effort levels,
--- thinking on/off is the only knob) serves debounced completion requests
--- while typing.
+-- Backends:
+--   deepseek (default) - DeepSeek V4 Flash via its native FIM endpoint
+--       (api.deepseek.com/beta, prompt+suffix); one streaming curl per request.
+--   mistral - Codestral via api.mistral.ai/v1/fim/completions; same shape.
+--       Runs on a free-tier key, so rate limits (~1 req/s) apply - the 400ms
+--       debounce plus one-request-at-a-time keeps us mostly under them, and
+--       429s are silently dropped.
+--   qwen (experimental) - Qwen3-Coder 480B via OpenRouter's raw completions
+--       route, hand-building the PSM fill-in-the-middle prompt
+--       (<|fim_prefix|>p<|fim_suffix|>s<|fim_middle|>). Pinned to DeepInfra,
+--       the one provider verified to pass FIM tokens through untemplated.
+--       The model tends to over-generate past the join point; the shared
+--       overlap trimming below the render handles that.
+--   claude - the original persistent `claude -p` worker (stream-json in/out,
+--       haiku with thinking disabled via MAX_THINKING_TOKENS=0), prompting a
+--       chat model with the buffer split at a <CURSOR> marker.
+--
+-- HTTP backends read API keys from ~/.config/llm/secrets/<name>; if the key
+-- file is missing the module falls back to the claude backend (or stays off).
+-- Switch at runtime with :ClaudeCompleteBackend {deepseek|mistral|claude}.
+--
 -- Suggestions stream in as dimmed virtual text at the cursor; any edit,
 -- cursor move, or leaving insert mode dismisses them. Only the newest
--- request is honored ("gen" counter) and at most one is in flight; the
--- worker is recycled every max_turns completions so its conversation
--- history (and per-request input cost) stays bounded.
+-- request is honored ("gen" counter). The claude worker is recycled every
+-- max_turns completions so its conversation history stays bounded.
 
 local M = {}
 
@@ -16,14 +32,16 @@ local ns = vim.api.nvim_create_namespace("claude_autocomplete")
 
 local config = {
 	enabled = true,
+	backend = "deepseek",
 	debounce_ms = 400,
 	accept_key = "<C-l>",
 	toggle_key = "<leader>ta",
-	model = "haiku",
+	model = "haiku", -- claude backend only
 	context_before = 60, -- lines of context above the cursor
 	context_after = 20, -- lines of context below the cursor
-	max_turns = 25, -- recycle the worker after this many completions
+	max_turns = 25, -- recycle the claude worker after this many completions
 	max_output_tokens = 160, -- hard cap per suggestion (bounds latency too)
+	secrets_dir = vim.fn.expand("~/.config/llm/secrets"),
 }
 
 local system_prompt = table.concat({
@@ -46,25 +64,114 @@ local system_prompt = table.concat({
 	"Each request is independent; ignore previous requests.",
 }, " ")
 
--- Worker state
+-- Claude worker state
 local job = nil
 local turns = 0
 local stdout_tail = ""
 
+-- HTTP request state (one streaming curl at a time)
+local http_job = nil
+
 -- Request state
 local gen = 0 -- bumped on every new request and on invalidation
-local in_flight = false
-local pending = nil -- newest request queued while another is in flight
-local current = nil -- request the worker is answering right now
+local in_flight = false -- claude backend only (worker answers serially)
+local pending = nil -- newest request queued while the claude worker is busy
+local current = nil -- request being answered right now
 local accumulated = ""
 local timer = nil
 
 local suggestion = nil -- { text, row, col, bufnr }
 
+local secrets = {} -- name -> key (false when the file is missing)
+
+local function get_secret(name)
+	if secrets[name] == nil then
+		local f = io.open(config.secrets_dir .. "/" .. name, "r")
+		if f then
+			secrets[name] = vim.trim(f:read("*a"))
+			f:close()
+		else
+			secrets[name] = false
+		end
+	end
+	return secrets[name] or nil
+end
+
+-- FIM-endpoint backends. `delta` pulls the streamed text out of one SSE event.
+local http_backends = {
+	deepseek = {
+		url = "https://api.deepseek.com/beta/completions",
+		secret = "deepseek",
+		body = function(req)
+			return {
+				model = "deepseek-v4-flash",
+				prompt = req.prefix,
+				suffix = req.suffix,
+				temperature = 0,
+				max_tokens = config.max_output_tokens,
+				stop = { "\n\n\n" },
+				stream = true,
+			}
+		end,
+		delta = function(ev)
+			local c = (ev.choices or {})[1]
+			return c and c.text
+		end,
+	},
+	mistral = {
+		url = "https://api.mistral.ai/v1/fim/completions",
+		secret = "mistral-free",
+		body = function(req)
+			return {
+				model = "codestral-2508",
+				prompt = req.prefix,
+				suffix = req.suffix,
+				temperature = 0,
+				top_p = 1,
+				max_tokens = config.max_output_tokens,
+				stop = { "\n\n\n" },
+				stream = true,
+			}
+		end,
+		delta = function(ev)
+			local c = (ev.choices or {})[1]
+			local m = c and (c.delta or c.message)
+			return m and m.content
+		end,
+	},
+	qwen = {
+		url = "https://openrouter.ai/api/v1/completions",
+		secret = "openrouter",
+		body = function(req)
+			return {
+				model = "qwen/qwen3-coder",
+				prompt = "<|fim_prefix|>" .. req.prefix .. "<|fim_suffix|>" .. req.suffix .. "<|fim_middle|>",
+				temperature = 0,
+				max_tokens = config.max_output_tokens,
+				stop = { "\n\n\n" },
+				stream = true,
+				provider = { order = { "deepinfra/turbo" }, allow_fallbacks = false },
+				plugins = { { id = "context-compression", enabled = false } },
+			}
+		end,
+		delta = function(ev)
+			local c = (ev.choices or {})[1]
+			return c and c.text
+		end,
+	},
+}
+
 local function stop_timer()
 	if timer then
 		vim.fn.timer_stop(timer)
 		timer = nil
+	end
+end
+
+local function stop_http()
+	if http_job then
+		vim.fn.jobstop(http_job)
+		http_job = nil
 	end
 end
 
@@ -77,6 +184,7 @@ local function stop_worker()
 	stdout_tail = ""
 	in_flight = false
 	pending = nil
+	stop_http()
 end
 
 local function clear_ghost()
@@ -90,10 +198,11 @@ end
 local function invalidate()
 	gen = gen + 1
 	clear_ghost()
+	stop_http() -- a stale HTTP stream is pure waste; the worker just skips
 end
 
--- <CURSOR> looks like an opening HTML tag, so the model occasionally
--- "closes" it by ending the completion with </CURSOR>, or echoes the marker
+-- <CURSOR> looks like an opening HTML tag, so chat models occasionally
+-- "close" it by ending the completion with </CURSOR>, or echo the marker
 -- itself. Strip both wherever they appear; a line that was nothing but the
 -- marker is dropped entirely. While streaming, also hold back a trailing
 -- partial marker (e.g. "</CURS") so it never flashes as ghost text.
@@ -134,7 +243,7 @@ function M._strip_fences(text)
 end
 
 -- Cut a suggestion off at the point where it starts re-typing code that
--- already exists below the cursor (chat models love to rewrite the rest of
+-- already exists below the cursor (models love to rewrite the rest of
 -- the block instead of inserting the one missing piece). Only lines with
 -- some substance (> 3 chars trimmed) count as duplicates, so legitimate
 -- short closers like "}", "end", or ");" are never trimmed away.
@@ -183,6 +292,10 @@ local function render(req, text, is_final)
 	end
 
 	text = M._strip_markers(M._strip_fences(text), not is_final)
+	local cut = text:find("\n\n\n", 1, true)
+	if cut then
+		text = text:sub(1, cut - 1)
+	end
 	text = trim_overlap(req, text):gsub("%s+$", "")
 	if text == "" then
 		-- Everything the model produced duplicates existing code: no ghost,
@@ -208,6 +321,9 @@ local function render(req, text, is_final)
 		suggestion = { text = text, row = req.row, col = req.col, bufnr = req.bufnr }
 	end
 end
+
+-- ---------------------------------------------------------------------------
+-- claude backend (persistent stream-json worker)
 
 local function handle_event(ev)
 	if ev.type == "stream_event" and current then
@@ -287,13 +403,13 @@ local function ensure_worker()
 	})
 	if job <= 0 then
 		job = nil
-		vim.notify("claude autocomplete: failed to start `claude` worker", vim.log.levels.WARN)
+		vim.notify("autocomplete: failed to start `claude` worker", vim.log.levels.WARN)
 		return false
 	end
 	return true
 end
 
-function M._send(req)
+local function send_claude(req)
 	if not ensure_worker() then
 		return
 	end
@@ -305,6 +421,77 @@ function M._send(req)
 		message = { role = "user", content = { { type = "text", text = req.text } } },
 	})
 	vim.fn.chansend(job, msg .. "\n")
+end
+
+-- ---------------------------------------------------------------------------
+-- FIM HTTP backends (one streaming curl per request)
+
+local function send_http(req)
+	local b = http_backends[config.backend]
+	local key = get_secret(b.secret)
+	if not key then
+		return
+	end
+	stop_http()
+	current = req
+	accumulated = ""
+	local tail = ""
+	-- The key travels via the environment, not argv, so it never shows in ps.
+	local this_job
+	this_job = vim.fn.jobstart({
+		"sh",
+		"-c",
+		'exec curl -sS -N --max-time 30 -X POST "$AC_URL" '
+			.. '-H "Content-Type: application/json" -H "Authorization: Bearer $AC_KEY" '
+			.. "--data-binary @-",
+	}, {
+		env = { AC_URL = b.url, AC_KEY = key },
+		on_stdout = function(_, data)
+			if req.gen ~= gen then
+				return
+			end
+			data[1] = tail .. data[1]
+			tail = table.remove(data)
+			for _, line in ipairs(data) do
+				local payload = line:match("^data:%s*(.*)")
+				if payload and payload ~= "[DONE]" then
+					local ok, ev = pcall(vim.json.decode, payload)
+					if ok and type(ev) == "table" then
+						local delta = b.delta(ev)
+						if type(delta) == "string" and delta ~= "" then
+							accumulated = accumulated .. delta
+							render(req, accumulated, false)
+						end
+					end
+				end
+			end
+		end,
+		on_exit = function()
+			if http_job == this_job then
+				http_job = nil
+			end
+			-- Errors (bad key, 429s, timeouts) just mean no ghost this round.
+			if req.gen == gen and accumulated ~= "" then
+				render(req, accumulated, true)
+			end
+		end,
+	})
+	if this_job <= 0 then
+		return
+	end
+	http_job = this_job
+	vim.fn.chansend(this_job, vim.json.encode(b.body(req)))
+	vim.fn.chanclose(this_job, "stdin")
+end
+
+-- ---------------------------------------------------------------------------
+
+function M._send(req)
+	if http_backends[config.backend] then
+		send_http(req)
+	else
+		send_claude(req)
+	end
 end
 
 local function build_request()
@@ -326,15 +513,22 @@ local function build_request()
 		after_text = after_text .. "\n" .. table.concat(after, "\n")
 	end
 
+	local prefix = before_text .. line:sub(1, col)
 	local name = vim.fn.expand("%:t")
-	local text = ("File: %s\nLanguage: %s\n\n%s%s<CURSOR>%s"):format(
+	local text = ("File: %s\nLanguage: %s\n\n%s<CURSOR>%s"):format(
 		name ~= "" and name or "(unnamed)",
 		vim.bo[bufnr].filetype ~= "" and vim.bo[bufnr].filetype or "unknown",
-		before_text,
-		line:sub(1, col),
+		prefix,
 		after_text
 	)
-	return { bufnr = bufnr, row = row, col = col, text = text }
+	return {
+		bufnr = bufnr,
+		row = row,
+		col = col,
+		text = text, -- claude backend: chat prompt with <CURSOR> marker
+		prefix = prefix, -- FIM backends: raw split at the cursor
+		suffix = after_text,
+	}
 end
 
 -- Request a completion for the current cursor position immediately
@@ -346,7 +540,9 @@ function M.trigger()
 	local req = build_request()
 	gen = gen + 1
 	req.gen = gen
-	if in_flight then
+	if http_backends[config.backend] then
+		M._send(req) -- send_http cancels any in-flight stream itself
+	elseif in_flight then
 		pending = req
 	else
 		M._send(req)
@@ -373,14 +569,48 @@ function M.toggle()
 		invalidate()
 		stop_worker()
 	end
-	vim.notify("Claude autocomplete " .. (config.enabled and "on" or "off"))
+	vim.notify("Autocomplete " .. (config.enabled and ("on (" .. config.backend .. ")") or "off"))
+end
+
+local function backend_usable(name)
+	if http_backends[name] then
+		return get_secret(http_backends[name].secret) ~= nil
+	end
+	return name == "claude" and vim.fn.executable("claude") == 1
+end
+
+function M.set_backend(name)
+	if not (http_backends[name] or name == "claude") then
+		vim.notify("autocomplete: unknown backend " .. name, vim.log.levels.WARN)
+		return
+	end
+	if not backend_usable(name) then
+		vim.notify("autocomplete: backend " .. name .. " unavailable (missing key or binary)", vim.log.levels.WARN)
+		return
+	end
+	invalidate()
+	stop_worker()
+	config.backend = name
+	vim.notify("Autocomplete backend: " .. name)
+end
+
+-- Test/introspection helper: the currently shown suggestion, if any.
+function M._suggestion()
+	return suggestion
 end
 
 function M.setup(opts)
-	if vim.fn.executable("claude") == 0 then
-		return
-	end
 	config = vim.tbl_deep_extend("force", config, opts or {})
+
+	-- Fall back gracefully when the configured backend can't run here:
+	-- preferred backend -> claude -> feature stays off.
+	if not backend_usable(config.backend) then
+		if config.backend ~= "claude" and backend_usable("claude") then
+			config.backend = "claude"
+		else
+			return
+		end
+	end
 
 	vim.api.nvim_set_hl(0, "ClaudeGhostText", { link = "Comment", default = true })
 
@@ -429,6 +659,14 @@ function M.setup(opts)
 	vim.keymap.set("i", config.accept_key, M.accept, { desc = "Accept ghost completion" })
 	vim.keymap.set("n", config.toggle_key, M.toggle, { desc = "[T]oggle [A]utocomplete" })
 	vim.api.nvim_create_user_command("ClaudeCompleteToggle", M.toggle, {})
+	vim.api.nvim_create_user_command("ClaudeCompleteBackend", function(cmd)
+		M.set_backend(cmd.args)
+	end, {
+		nargs = 1,
+		complete = function()
+			return { "deepseek", "mistral", "qwen", "claude" }
+		end,
+	})
 end
 
 return M

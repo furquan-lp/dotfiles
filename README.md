@@ -191,9 +191,18 @@ These keymaps are active in **Insert Mode** when the completion menu is visible.
 
 ---
 
-### **AI Ghost Completions (Claude CLI, Full Profile)**
+### **AI Ghost Completions (Full Profile)**
 
-Debounced (400ms) ghost-text suggestions at the cursor, powered by a persistent `claude -p` worker (Haiku, thinking disabled) — requires the `claude` CLI to be installed and logged in (on machines without `claude`, the feature silently stays off). Suggestions stream in as dimmed virtual text; typing, moving the cursor, or leaving insert mode dismisses them. Suggestions are kept minimal: output is capped at 160 tokens, and any part that would duplicate code already below the cursor is trimmed away. The worker is recycled every 25 completions to keep its context lean.
+Debounced (400ms) ghost-text suggestions at the cursor, with pluggable backends:
+
+*   **`deepseek`** (default) — DeepSeek V4 Flash through its native fill-in-the-middle endpoint (`api.deepseek.com/beta`, prompt+suffix); one streaming `curl` per request, cancelled the moment you keep typing.
+*   **`mistral`** — Codestral 2508 through Mistral's FIM endpoint. Currently on a free-tier key, so rate limits (~1 req/s) apply; the debounce keeps usage mostly under them and throttled requests are silently dropped.
+*   **`qwen`** (experimental) — Qwen3-Coder 480B via OpenRouter's raw completions route, hand-building the `<|fim_prefix|>…<|fim_suffix|>…<|fim_middle|>` prompt and pinned to DeepInfra (the one provider verified to pass FIM tokens through untemplated). The model over-generates past the join point; the shared overlap trimming cleans that up.
+*   **`claude`** — the original persistent `claude -p` worker (Haiku, thinking disabled) prompting a chat model with the buffer split at a `<CURSOR>` marker; recycled every 25 completions.
+
+The HTTP backends read API keys from `~/.config/llm/secrets/{deepseek,mistral-free,openrouter}`. If the configured backend can't run (missing key file / missing `claude` binary), the module falls back to `claude`, or silently stays off. Switch at runtime with `:ClaudeCompleteBackend {deepseek|mistral|qwen|claude}`.
+
+Suggestions stream in as dimmed virtual text; typing, moving the cursor, or leaving insert mode dismisses them. Suggestions are kept minimal: output is capped at 160 tokens, cut at the first double blank line, and any part that would duplicate code already below the cursor is trimmed away.
 
 | Keymap | Mode(s) | Description |
 | --- | --- | --- |
