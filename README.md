@@ -211,9 +211,9 @@ Suggestions stream in as dimmed virtual text; typing, moving the cursor, or leav
 
 ---
 
-### **AI Selection Transform (Claude CLI, Full Profile)**
+### **AI Selection Transform (OpenRouter)**
 
-Cursor-style "Cmd-K": select lines in visual mode, describe the change in a small floating prompt, and the selection is rewritten in place (Haiku with thinking enabled, one-shot `claude -p` per transform). Selections operate on whole lines; ±30 lines of context are sent along. The result is applied as a single undo step — `u` reverts it — and is discarded (with a notice) if the buffer changed while the model was working.
+Cursor-style "Cmd-K": select lines in visual mode, describe the change in a small floating prompt, and the selection is rewritten in place by GPT-5.6 Luna with reasoning off. Selections operate on whole lines; the whole file is sent as context (a context-size experiment in the bench showed it fixes edits that depend on definitions far from the selection at ~0.1 s extra), trimmed to a window around the selection only past ~48 KB. The result is applied as a single undo step — `u` reverts it — and is discarded (with a notice) if the buffer changed while the model was working.
 
 | Keymap | Mode(s) | Description |
 | --- | --- | --- |
