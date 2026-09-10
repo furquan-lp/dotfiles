@@ -27,5 +27,6 @@
       "maxAgeDays": 30,
       "pinLabeledEntries": true
     }
-  }
+  },
+  "hideThinkingBlock": false
 }

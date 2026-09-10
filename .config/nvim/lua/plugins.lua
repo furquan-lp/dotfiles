@@ -1,5 +1,9 @@
 local full_profile = not vim.g.minimal_profile
 
+-- Filetypes conform must not format on save (no well standardized style).
+-- Shared with the statusline so its formatter indicator matches save behaviour.
+local autoformat_disabled = { c = true, cpp = true }
+
 return {
 	{
 		"NMAC427/guess-indent.nvim",
@@ -553,8 +557,7 @@ return {
 			format_on_save = function(bufnr)
 				-- Disable "format_on_save lsp_fallback" for languages that don't
 				-- have a well standardized coding style.
-				local disable_filetypes = { c = true, cpp = true }
-				if disable_filetypes[vim.bo[bufnr].filetype] then
+				if autoformat_disabled[vim.bo[bufnr].filetype] then
 					return
 				else
 					return {
@@ -729,6 +732,98 @@ return {
 			---@diagnostic disable-next-line: duplicate-set-field
 			statusline.section_location = function()
 				return "%2l:%-2v"
+			end
+
+			-- What will run on save: conform formatter name(s), "lsp" for the
+			-- LSP fallback, or nothing. Cached per buffer+filetype because the
+			-- statusline is evaluated on every redraw and conform resolves
+			-- executables each call.
+			local formatter_cache = {}
+			vim.api.nvim_create_autocmd({ "FileType", "BufWritePost", "LspAttach", "LspDetach" }, {
+				group = vim.api.nvim_create_augroup("statusline-formatter-cache", { clear = true }),
+				callback = function(ev)
+					formatter_cache[ev.buf] = nil
+				end,
+			})
+			local function formatter_info(bufnr)
+				local ft = vim.bo[bufnr].filetype
+				local cached = formatter_cache[bufnr]
+				if cached and cached.ft == ft then
+					return cached.str
+				end
+				local str = ""
+				if not autoformat_disabled[ft] then
+					local ok, conform = pcall(require, "conform")
+					if ok then
+						local names = {}
+						for _, f in ipairs(conform.list_formatters_to_run(bufnr)) do
+							table.insert(names, f.name)
+						end
+						if #names > 0 then
+							str = table.concat(names, "+")
+						else
+							-- Mirror format_on_save's lsp_format = "fallback".
+							local clients = vim.lsp.get_clients({ bufnr = bufnr, method = "textDocument/formatting" })
+							if #clients > 0 then
+								str = "lsp"
+							end
+						end
+					end
+				end
+				formatter_cache[bufnr] = { ft = ft, str = str }
+				return str
+			end
+
+			-- Indentation, shown only when it differs from the global default
+			-- (guess-indent and ftplugins change it silently per buffer).
+			local function indent_info()
+				local sw = vim.bo.shiftwidth
+				if sw == 0 then
+					sw = vim.bo.tabstop
+				end
+				local expandtab = vim.bo.expandtab
+				if expandtab == vim.go.expandtab and sw == vim.go.shiftwidth then
+					return ""
+				end
+				return (expandtab and "sp:" or "tab:") .. sw
+			end
+
+			local function filetype_icon()
+				local ft = vim.bo.filetype
+				if not vim.g.have_nerd_font then
+					return ft
+				end
+				local ok, devicons = pcall(require, "nvim-web-devicons")
+				if not ok then
+					return ft
+				end
+				return (devicons.get_icon(vim.fn.expand("%:t"), nil, { default = true })) or ft
+			end
+
+			-- Replace encoding / fileformat / filesize with:
+			--   <formatter> <indent> <icon> <total lines>
+			-- Conditional items sit on the outer edge so the icon, line count
+			-- and cursor location never shift when they appear or vanish.
+			---@diagnostic disable-next-line: duplicate-set-field
+			statusline.section_fileinfo = function(args)
+				local icon = filetype_icon()
+				if statusline.is_truncated(args.trunc_width) or vim.bo.buftype ~= "" then
+					return icon
+				end
+				local parts = {}
+				local fmt = formatter_info(vim.api.nvim_get_current_buf())
+				if fmt ~= "" then
+					table.insert(parts, fmt)
+				end
+				local indent = indent_info()
+				if indent ~= "" then
+					table.insert(parts, indent)
+				end
+				if icon ~= "" then
+					table.insert(parts, icon)
+				end
+				table.insert(parts, "%LL")
+				return table.concat(parts, " ")
 			end
 
 			local indentscope = require("mini.indentscope")
