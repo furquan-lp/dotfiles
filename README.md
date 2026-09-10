@@ -1,5 +1,7 @@
 # Syed's Dotfiles
 
+[![Neovim setup showing the mini.files explorer, inline color previews, split editing, floating editor, inline Git blame, AI selection transform, definition preview, and a labeled statusline with mode, Git branch, diff summary, LSP clients, file path, file type, encoding, line endings, buffer size, and line:column](docs/images/neovim-overview.png)](docs/images/neovim-overview.png)
+
 ## My Neovim Cheatsheet
 
 **Leader Key:** `,`
