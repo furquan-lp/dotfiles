@@ -312,3 +312,96 @@ Copy mode uses **vi keys** (`mode-keys vi`): `prefix [` to enter, then the usual
 * **Terminal titles** are set to `pane_title window_name session_name`.
 * **Escape time is 5ms**, so `Esc` in Neovim doesn't lag.
 * The status bar uses the terminal's default background, so the theme's colors show through.
+
+## My Pi Cheatsheet
+
+[Pi](https://pi.dev) (`@earendil-works/pi-coding-agent`) is the terminal coding agent. Its config lives in `.pi/agent/`:
+
+* **`settings.json`** — model defaults, external editor, packages, and per-extension settings (`piVim`, `rewind`).
+* **`keybindings.json`** — key overrides on top of Pi's defaults.
+
+Both are symlinked into `~/.pi/agent/`. Everything else in that directory (`auth.json`, `sessions/`, `npm/`, `models-store.json`, `trust.json`) is machine-local and stays out of the repo. Pi writes settings in place, so the symlinks survive `/settings`, `Ctrl+S` in `/model`, and `pi install`.
+
+### Setup on a New Machine
+
+```sh
+npm install -g --ignore-scripts @earendil-works/pi-coding-agent
+mkdir -p ~/.pi/agent
+ln -s ~/Code/dotfiles/.pi/agent/settings.json ~/.pi/agent/settings.json
+ln -s ~/Code/dotfiles/.pi/agent/keybindings.json ~/.pi/agent/keybindings.json
+pi          # missing packages from settings.json install on first start; then /login for openai-codex
+```
+
+Terminal prerequisites: tmux needs `extended-keys on` and `extended-keys-format csi-u` (already in `tmux.conf`), and iTerm2 must send the left Option key as **Esc+** (Settings → Profiles → Keys → General), otherwise none of the `alt` bindings below reach Pi.
+
+### Models
+
+Provider is `openai-codex` (ChatGPT subscription OAuth). Startup model is `gpt-6-astra` at thinking level `high`. `Ctrl+P` cycles only through `gpt-6-astra`, `gpt-5.6-sol`, and `gpt-5.6-terra`; edit `enabledModels` or use `/scoped-models` to change the set. The footer shows Codex subscription usage (`pi-openai-codex-usage`); `/codex-usage` gives the full report.
+
+### Packages
+
+| Package | What it adds |
+| --- | --- |
+| `pi-vim` | Modal vim editing in the prompt (see below). |
+| `pi-openai-codex-usage` | Codex usage bars in the footer and `/codex-usage`. |
+| `pi-rewind-hook` | Claude Code-style rewind: file snapshots at every prompt and turn, offered inside `/fork` and `/tree`. |
+
+`pi update --all` updates Pi and every package; `pi list` shows what is installed.
+
+### Keybindings
+
+Overrides in `keybindings.json`; everything else is Pi's default (`/hotkeys` lists them all).
+
+| Keymap | Description |
+| --- | --- |
+| `Ctrl+Q` | Interrupt the agent / abort a running shell command (moved off `Esc` so vim mode owns it). |
+| `Ctrl+Q Ctrl+Q` | With an empty editor: open the session tree. |
+| `Alt+T` | Open the session tree (`/tree`). |
+| `Shift+Alt+F` | Fork from an earlier prompt (`/fork`). |
+| `Alt+R` | Resume picker (`/resume`). |
+| `Alt+N` | New session (`/new`). |
+| `Ctrl+G` | Edit the prompt in the minimal Neovim profile (`env NVIM_MINIMAL=1 nvim`). |
+| `Ctrl+P` / `Shift+Ctrl+P` | Cycle enabled models forward / backward. |
+| `Ctrl+L` | Model picker (`Ctrl+S` there saves the startup default). |
+| `Shift+Tab` | Cycle thinking level; `Ctrl+T` collapses thinking blocks. |
+| `Ctrl+O` | Expand or collapse tool output. |
+| `Ctrl+X` | Copy the last assistant message (or the selected message in `/tree`). |
+| `Ctrl+V` | Paste an image or text from the clipboard; screenshots render inline in iTerm2. |
+| `Alt+Enter` | Queue a follow-up message (delivered when the agent is idle); plain `Enter` while working steers the current turn. |
+| `Alt+Up` | Pull queued messages back into the editor. |
+| `Ctrl+C` | Clear the editor; twice to exit. `Ctrl+D` exits when the editor is empty. |
+
+Editor extras: `@` fuzzy-finds project files, `!cmd` runs a shell command and sends the output to the model, `!!cmd` runs it without sending, `Shift+Enter` inserts a newline.
+
+### Vim Mode (`pi-vim`)
+
+`Esc` or `Ctrl+[` leaves INSERT for NORMAL; the footer shows the mode. Motions (`w`, `f{char}`, `%`, `25gg`), operators with counts (`3dw`, `ci"`, `ya{`), text objects, `v` / `V` visual modes, `.` repeat, and `u` / `Ctrl+R` undo/redo all work. The unnamed register is kept internal (`clipboardMirror: never`), so yanks and deletes never touch the system clipboard; use the terminal's own copy for that.
+
+The ex line talks to Pi:
+
+| Command | Description |
+| --- | --- |
+| `:tree`, `:model opus`, `:{any-slash-command}` | Run the Pi command of that name; the draft prompt is restored afterwards. |
+| `:!git status` / `:!!cmd` | Run in Pi's shell, with / without sending the output to the model. |
+| `:q` / `:q!` | Quit only when the prompt is empty / force quit. |
+
+### Sessions, Tree, and Rewind
+
+Sessions are saved per working directory under `~/.pi/agent/sessions/`. `pi -c` continues the last one, `pi -r` opens the picker, `/name` labels the current one. Every session is a tree: `/tree` jumps to any earlier point and continues from there in the same file, `/fork` starts a new session file from an earlier prompt, `/clone` duplicates the current branch.
+
+In `/tree`: `Ctrl+O` cycles the filter (default → no-tools → user-only → labeled-only → all), `Shift+L` labels a node, `Ctrl+←` / `Ctrl+→` fold and unfold branch segments, `Enter` selects. Leaving a branch offers to summarize it into the new position.
+
+With `pi-rewind-hook`, selecting a node in `/tree` or `/fork` also asks what to do with files:
+
+| Option | Files | Conversation |
+| --- | --- | --- |
+| Conversation only | unchanged | reset to that point |
+| Restore all | restored | reset to that point |
+| Code only | restored | unchanged |
+| Undo last file rewind | back to before the last rewind | unchanged |
+
+Snapshots live in the repo as `refs/pi-rewind/store` and are pruned after 30 days or 2000 snapshots; nodes labeled in `/tree` are never pruned, so label anything worth keeping. It only works inside a git repository.
+
+### Context Files
+
+Pi reads `AGENTS.md` (or `CLAUDE.md`) from `~/.pi/agent/`, every parent directory, and the cwd, concatenated. Project-specific Pi settings go in `.pi/settings.json` in the repo; `/trust` records the trust decision for that folder.

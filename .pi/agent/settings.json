@@ -1,0 +1,31 @@
+{
+  "lastChangelogVersion": "0.85.1",
+  "theme": "dark",
+  "packages": [
+    "npm:pi-vim",
+    "npm:pi-openai-codex-usage",
+    "npm:pi-rewind-hook"
+  ],
+  "defaultProvider": "openai-codex",
+  "defaultModel": "gpt-6-astra",
+  "defaultThinkingLevel": "high",
+  "externalEditor": "env NVIM_MINIMAL=1 nvim",
+  "enabledModels": [
+    "openai-codex/gpt-6-astra",
+    "openai-codex/gpt-5.6-sol",
+    "openai-codex/gpt-5.6-terra"
+  ],
+  "terminal": {
+    "images": "iterm2"
+  },
+  "piVim": {
+    "clipboardMirror": "never"
+  },
+  "rewind": {
+    "retention": {
+      "maxSnapshots": 2000,
+      "maxAgeDays": 30,
+      "pinLabeledEntries": true
+    }
+  }
+}
