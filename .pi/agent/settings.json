@@ -1,10 +1,12 @@
 {
-  "lastChangelogVersion": "0.85.1",
+  "lastChangelogVersion": "0.87.1",
   "theme": "dark",
   "packages": [
     "npm:pi-vim",
     "npm:pi-openai-codex-usage",
-    "npm:pi-rewind-hook"
+    "npm:pi-rewind-hook",
+    "npm:@phoen1xcode/pi-codex-fast",
+    "npm:pi-mcp-adapter"
   ],
   "defaultProvider": "openai-codex",
   "defaultModel": "gpt-6-astra",
@@ -27,5 +29,9 @@
       "maxAgeDays": 30,
       "pinLabeledEntries": true
     }
-  }
+  },
+  "@phoen1xcode/pi-codex-fast": {
+    "enabled": true
+  },
+  "hideThinkingBlock": true
 }
