@@ -5,8 +5,8 @@
     "npm:pi-vim",
     "npm:pi-openai-codex-usage",
     "npm:pi-rewind-hook",
-    "npm:@phoen1xcode/pi-codex-fast",
-    "npm:pi-mcp-adapter"
+    "npm:pi-mcp-adapter",
+    "npm:pi-openai-fast-mode"
   ],
   "defaultProvider": "openai-codex",
   "defaultModel": "gpt-6-astra",
