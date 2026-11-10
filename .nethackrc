@@ -2,7 +2,7 @@
 # System-wide NetHack configuration file for console-only NetHack.
 #
 OPTIONS=name:player,msg_window:combination,msghistory:60,hitpointbar
-OPTIONS=windowtype:tty,toptenwin,hilite_pet,hilite_pile,number_pad
+OPTIONS=windowtype:curses,toptenwin,hilite_pet,hilite_pile
 OPTIONS=fixinv,safe_pet,sortpack,tombstone,color,DECGraphics,clicklook
 OPTIONS=verbose,news,fruit:potato,boulder:0
 OPTIONS=dogname:Slinky
@@ -13,6 +13,13 @@ OPTIONS=pickup_burden:unencumbered
 autopickup_exception=":0¥)"
 AUTOPICKUP_EXCEPTION="> named empty"
 OPTIONS=nomail
+
+# Curses interface options
+OPTIONS=windowborders:1
+OPTIONS=statuslines:3
+OPTIONS=perm_invent
+OPTIONS=nosplash_screen
+OPTIONS=popup_dialog
 
 # Enable this if you want to see your inventory sorted in alphabetical
 # order by item instead of by index letter:
