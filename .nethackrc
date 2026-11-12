@@ -8,11 +8,13 @@ OPTIONS=verbose,news,fruit:potato,boulder:0
 OPTIONS=dogname:Slinky
 OPTIONS=catname:Rex
 OPTIONS=autopickup
-OPTIONS=pickup_types:$?/
+OPTIONS=pickup_types:$?/=
 OPTIONS=pickup_burden:unencumbered
-autopickup_exception=":0¥)"
 AUTOPICKUP_EXCEPTION="> named empty"
 OPTIONS=nomail
+OPTIONS=time,showexp
+OPTIONS=paranoid_confirmation:pray
+OPTIONS=sortloot:full
 
 # Curses interface options
 OPTIONS=windowborders:1
@@ -38,6 +40,11 @@ MENUCOLOR=" uncursed "=yellow
 MENUCOLOR=" cursed "=red
 MENUCOLOR=" unholy "=red
 MENUCOLOR=" cursed .* (being worn)"=orange&underline
+MENUCOLOR=" uncursed .* \(being worn\)"=cyan
+MENUCOLOR=" named empty"=brown
+# MENUCOLOR="\(weapon in hand"=no color&underline
+# MENUCOLOR=" blessed .*\(weapon in hand"=green&underline
+# MENUCOLOR=" cursed .*\(weapon in hand"=red&underline
 
 OPTIONS=statushilites:6
 
