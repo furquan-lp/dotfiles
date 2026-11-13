@@ -297,13 +297,13 @@ Keep the `run tpm` line last so plugin theming wins over the base status styling
 
 ### Keybindings
 
-All bindings are behind the prefix. New splits and popups open in the current pane's directory.
+All bindings are behind the prefix. New splits and floating panes open in the current pane's directory.
 
 | Keymap | Description |
 | --- | --- |
 | `prefix \|` | Split side-by-side (replaces the default `%`). |
 | `prefix -` | Split stacked (replaces the default `"`). |
-| `prefix P` | Open a centered 60%×60% popup shell (tmux 3.2+). |
+| `prefix P` | Open a centered 60%×60% native floating pane (tmux 3.8+), with scrollback and normal tmux navigation. |
 
 Copy mode uses **vi keys** (`mode-keys vi`): `prefix [` to enter, then the usual vi motions with `Space` (begin selection), `Enter` (copy and exit), and `q` (quit).
 
